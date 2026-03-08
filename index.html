@@ -1,0 +1,1682 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>華語英雄傳 | Mandarin Quest</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-dark: #0f0e17;
+  --bg-panel: #1a1a2e;
+  --bg-card: #232136;
+  --primary: #e94560;
+  --secondary: #0f3460;
+  --gold: #f6c177;
+  --hp-red: #eb6f92;
+  --mp-blue: #3e8fb0;
+  --success: #9ccfd8;
+  --xp-purple: #c4a7e7;
+  --text: #e0def4;
+  --text-dim: #6e6a86;
+  --border: #393552;
+  --pixel-shadow: 3px 3px 0px rgba(0,0,0,0.5);
+  --font-pixel: 'Press Start 2P', monospace;
+  --font-body: 'Noto Sans TC', sans-serif;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:100%; height:100%; overflow:hidden; background:var(--bg-dark); color:var(--text); font-family:var(--font-body); }
+
+/* ===== CANVAS OVERLAY ===== */
+#particle-canvas {
+  position:fixed; top:0; left:0; width:100%; height:100%;
+  pointer-events:none; z-index:9999;
+}
+
+/* ===== SCREEN SYSTEM ===== */
+.screen { display:none; position:absolute; top:0; left:0; width:100%; height:100%; overflow-y:auto; }
+.screen.active { display:flex; flex-direction:column; align-items:center; animation: screenIn 0.4s ease-out; }
+@keyframes screenIn { from { opacity:0; transform:translateY(20px);} to { opacity:1; transform:translateY(0);} }
+
+/* ===== PIXEL BUTTON ===== */
+.pixel-btn {
+  font-family:var(--font-pixel); font-size:11px; padding:14px 28px;
+  background:var(--primary); color:#fff; border:none; cursor:pointer;
+  border-bottom:4px solid #a11d33; border-right:4px solid #a11d33;
+  text-shadow: 1px 1px 0 rgba(0,0,0,0.5);
+  transition: all 0.1s; position:relative; letter-spacing:1px;
+  image-rendering: pixelated;
+}
+.pixel-btn:hover { transform:translate(-2px,-2px); border-bottom-width:6px; border-right-width:6px; filter:brightness(1.15); }
+.pixel-btn:active { transform:translate(2px,2px); border-bottom-width:2px; border-right-width:2px; }
+.pixel-btn.gold { background:var(--gold); color:#1a1a2e; border-color:#c4893a; }
+.pixel-btn.blue { background:var(--mp-blue); border-color:#2a6680; }
+.pixel-btn.green { background:#3d8b37; border-color:#2a6125; }
+.pixel-btn.small { font-size:8px; padding:8px 16px; }
+.pixel-btn.disabled { opacity:0.4; pointer-events:none; }
+
+/* ===== TITLE SCREEN ===== */
+#title-screen {
+  background: linear-gradient(180deg, #0f0e17 0%, #1a1a2e 40%, #0f3460 100%);
+  justify-content:center; gap:20px; text-align:center; padding:20px;
+}
+.title-stars { position:absolute; top:0; left:0; width:100%; height:100%; overflow:hidden; }
+.star { position:absolute; background:#fff; border-radius:50%; animation:twinkle 2s infinite alternate; }
+@keyframes twinkle { from{opacity:0.2;} to{opacity:1;} }
+.game-title {
+  font-family:var(--font-pixel); font-size:clamp(18px,4vw,36px); color:var(--gold);
+  text-shadow: 0 0 20px rgba(246,193,119,0.5), 4px 4px 0px #a11d33;
+  z-index:1; line-height:1.6;
+}
+.game-subtitle { font-family:var(--font-pixel); font-size:clamp(8px,2vw,14px); color:var(--xp-purple); z-index:1; margin-bottom:10px; }
+.title-pixel-art { font-size:clamp(40px,10vw,80px); z-index:1; filter:drop-shadow(0 0 20px rgba(233,69,96,0.4)); }
+.blink { animation:blink 1s steps(1) infinite; }
+@keyframes blink { 50%{opacity:0;} }
+.title-buttons { display:flex; flex-direction:column; gap:12px; z-index:1; }
+.version-tag { font-family:var(--font-pixel); font-size:7px; color:var(--text-dim); z-index:1; margin-top:20px; }
+
+/* ===== CHARACTER SELECT ===== */
+#char-select { background:var(--bg-dark); justify-content:center; gap:20px; padding:20px; }
+.char-grid { display:flex; gap:20px; flex-wrap:wrap; justify-content:center; }
+.char-card {
+  width:180px; background:var(--bg-card); border:3px solid var(--border); padding:16px;
+  text-align:center; cursor:pointer; transition:all 0.2s; position:relative;
+}
+.char-card:hover { border-color:var(--gold); transform:translateY(-4px); box-shadow:0 8px 20px rgba(246,193,119,0.2); }
+.char-card.selected { border-color:var(--gold); background:#2a2845; }
+.char-card.selected::after {
+  content:'✦'; position:absolute; top:-10px; right:-10px;
+  background:var(--gold); color:#1a1a2e; width:24px; height:24px;
+  font-size:14px; display:flex; align-items:center; justify-content:center;
+}
+.char-avatar { font-size:64px; margin:8px 0; filter:drop-shadow(0 4px 8px rgba(0,0,0,0.3)); }
+.char-name { font-family:var(--font-pixel); font-size:11px; color:var(--gold); margin:8px 0 4px; }
+.char-desc { font-size:12px; color:var(--text-dim); line-height:1.5; }
+.char-stats { display:flex; justify-content:space-around; margin-top:12px; }
+.stat-item { text-align:center; }
+.stat-label { font-family:var(--font-pixel); font-size:6px; color:var(--text-dim); display:block; }
+.stat-value { font-family:var(--font-pixel); font-size:10px; color:var(--success); }
+
+/* ===== DIFFICULTY SELECT ===== */
+#diff-select { background:var(--bg-dark); justify-content:center; gap:16px; padding:20px; }
+.diff-grid { display:flex; gap:16px; flex-wrap:wrap; justify-content:center; }
+.diff-card {
+  width:200px; background:var(--bg-card); border:3px solid var(--border); padding:20px;
+  text-align:center; cursor:pointer; transition:all 0.2s;
+}
+.diff-card:hover { border-color:var(--gold); transform:translateY(-4px); }
+.diff-card.selected { border-color:var(--gold); background:#2a2845; }
+.diff-icon { font-size:40px; margin:8px 0; }
+.diff-name { font-family:var(--font-pixel); font-size:11px; color:var(--gold); margin:8px 0; }
+.diff-desc { font-size:12px; color:var(--text-dim); line-height:1.5; }
+
+/* ===== WORLD MAP ===== */
+#world-map {
+  background: linear-gradient(180deg, #0f0e17 0%, #16213e 50%, #1a1a2e 100%);
+  justify-content:flex-start; padding:20px; gap:10px;
+}
+.map-hud {
+  width:100%; max-width:700px; display:flex; justify-content:space-between;
+  align-items:center; padding:8px 12px; background:rgba(0,0,0,0.5);
+  border:2px solid var(--border); font-family:var(--font-pixel); font-size:8px;
+}
+.hud-left { display:flex; align-items:center; gap:12px; }
+.hud-avatar { font-size:24px; }
+.hud-info { display:flex; flex-direction:column; gap:4px; }
+.hud-name { color:var(--gold); font-size:9px; }
+.hud-bars { display:flex; flex-direction:column; gap:3px; }
+.bar-container { display:flex; align-items:center; gap:6px; }
+.bar-label { color:var(--text-dim); font-size:6px; min-width:20px; }
+.bar-bg { width:100px; height:8px; background:#111; border:1px solid #333; position:relative; }
+.bar-fill { height:100%; transition:width 0.5s ease; }
+.bar-fill.hp { background:var(--hp-red); }
+.bar-fill.xp { background:var(--xp-purple); }
+.bar-text { font-size:6px; color:var(--text); }
+.hud-right { display:flex; gap:16px; align-items:center; }
+.hud-score { color:var(--gold); }
+.hud-level { color:var(--xp-purple); }
+
+.map-title { font-family:var(--font-pixel); font-size:clamp(12px,3vw,18px); color:var(--gold); text-shadow:var(--pixel-shadow); }
+.map-container {
+  position:relative; width:100%; max-width:700px; flex:1;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0;
+}
+.map-path { display:flex; flex-direction:column; align-items:center; gap:0; }
+.map-node-wrapper { display:flex; align-items:center; gap:12px; position:relative; }
+.map-connector {
+  width:4px; height:40px; background:var(--border); margin:0 auto;
+  position:relative;
+}
+.map-connector.unlocked { background:var(--gold); box-shadow:0 0 8px rgba(246,193,119,0.4); }
+.map-node {
+  width:70px; height:70px; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; cursor:pointer;
+  background:var(--bg-card); border:3px solid var(--border);
+  transition:all 0.3s; position:relative; font-size:28px;
+}
+.map-node.unlocked { border-color:var(--gold); }
+.map-node.unlocked:hover { transform:scale(1.12); box-shadow:0 0 20px rgba(246,193,119,0.3); border-color:#fff; }
+.map-node.completed { border-color:var(--success); background:rgba(156,207,216,0.1); }
+.map-node.locked { opacity:0.35; cursor:not-allowed; }
+.map-node.boss { border-color:var(--primary); animation:bossPulse 2s infinite; }
+@keyframes bossPulse { 0%,100%{box-shadow:0 0 5px rgba(233,69,96,0.3);} 50%{box-shadow:0 0 25px rgba(233,69,96,0.6);} }
+.node-label {
+  font-family:var(--font-pixel); font-size:7px; color:var(--text);
+  text-align:center; margin-top:4px; max-width:100px;
+}
+.node-stars { font-size:10px; margin-top:2px; }
+.map-bottom-btns { display:flex; gap:12px; margin-top:10px; }
+
+/* ===== GAME PLAY SCREEN ===== */
+#game-screen {
+  background:var(--bg-dark); justify-content:flex-start; padding:12px; gap:8px;
+}
+.game-hud-top {
+  width:100%; max-width:700px; display:flex; justify-content:space-between;
+  align-items:center; padding:8px 12px; background:rgba(0,0,0,0.6);
+  border:2px solid var(--border); font-family:var(--font-pixel); font-size:8px;
+}
+.game-level-name { color:var(--gold); }
+.game-timer { color:var(--hp-red); }
+.game-score-display { color:var(--success); }
+.game-area {
+  width:100%; max-width:700px; flex:1; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:16px; padding:12px;
+  background:var(--bg-panel); border:2px solid var(--border); position:relative;
+  overflow:hidden; min-height:300px;
+}
+.game-question {
+  font-family:var(--font-pixel); font-size:clamp(10px,2.5vw,16px);
+  color:var(--text); text-align:center; line-height:2; padding:8px;
+}
+.game-prompt { font-size:clamp(24px,6vw,48px); margin:8px 0; }
+.game-options { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; max-width:600px; }
+.game-option {
+  font-family:var(--font-pixel); font-size:clamp(9px,1.8vw,12px);
+  padding:12px 20px; background:var(--bg-card); border:2px solid var(--border);
+  color:var(--text); cursor:pointer; transition:all 0.15s; min-width:120px; text-align:center;
+}
+.game-option:hover { border-color:var(--gold); background:#2a2845; transform:translateY(-2px); }
+.game-option.correct { border-color:var(--success); background:rgba(156,207,216,0.2); animation:correctFlash 0.5s; }
+.game-option.wrong { border-color:var(--hp-red); background:rgba(235,111,146,0.2); animation:shake 0.4s; }
+@keyframes correctFlash { 0%{background:rgba(156,207,216,0.6);} 100%{background:rgba(156,207,216,0.2);} }
+@keyframes shake { 0%,100%{transform:translateX(0);} 20%{transform:translateX(-8px);} 40%{transform:translateX(8px);} 60%{transform:translateX(-4px);} 80%{transform:translateX(4px);} }
+
+/* Memory cards */
+.memory-grid { display:grid; gap:8px; justify-content:center; }
+.memory-card {
+  width:clamp(60px,15vw,85px); height:clamp(70px,18vw,100px);
+  background:var(--secondary); border:2px solid var(--border);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; transition:all 0.3s; font-size:clamp(14px,3vw,22px);
+  font-family:var(--font-body); position:relative;
+  transform-style:preserve-3d;
+}
+.memory-card.flipped { background:var(--bg-card); border-color:var(--gold); }
+.memory-card.matched { background:rgba(156,207,216,0.15); border-color:var(--success); opacity:0.7; }
+.memory-card .card-back { font-size:clamp(18px,4vw,28px); }
+.memory-card .card-front { display:none; }
+.memory-card.flipped .card-back { display:none; }
+.memory-card.flipped .card-front { display:block; }
+
+/* Grammar drag */
+.grammar-sentence { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; min-height:50px;
+  padding:12px; border:2px dashed var(--border); background:rgba(0,0,0,0.2); max-width:600px; }
+.grammar-bank { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-top:12px; }
+.grammar-word {
+  font-family:var(--font-pixel); font-size:clamp(10px,2vw,14px);
+  padding:10px 16px; background:var(--bg-card); border:2px solid var(--border);
+  color:var(--text); cursor:grab; user-select:none; transition:all 0.15s;
+}
+.grammar-word:hover { border-color:var(--gold); }
+.grammar-word.in-sentence { background:var(--secondary); }
+.grammar-word.correct-pos { border-color:var(--success); }
+.grammar-word.wrong-pos { border-color:var(--hp-red); animation:shake 0.4s; }
+
+/* Combo & feedback */
+.combo-display {
+  font-family:var(--font-pixel); font-size:16px; color:var(--gold);
+  position:absolute; top:10px; right:10px;
+  text-shadow:0 0 10px rgba(246,193,119,0.5);
+}
+.feedback-popup {
+  position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+  font-family:var(--font-pixel); font-size:24px; z-index:1000;
+  animation:popUp 0.8s ease-out forwards; pointer-events:none;
+}
+@keyframes popUp {
+  0% { opacity:1; transform:translate(-50%,-50%) scale(0.5); }
+  50% { transform:translate(-50%,-50%) scale(1.3); }
+  100% { opacity:0; transform:translate(-50%,-80%) scale(1); }
+}
+
+/* ===== LEVEL COMPLETE ===== */
+#level-complete { background:rgba(15,14,23,0.95); justify-content:center; gap:16px; padding:20px; text-align:center; z-index:100; }
+.complete-stars { font-size:40px; margin:8px 0; }
+.complete-title { font-family:var(--font-pixel); font-size:clamp(14px,3vw,22px); color:var(--gold); text-shadow:var(--pixel-shadow); }
+.complete-stats { font-family:var(--font-pixel); font-size:9px; line-height:2.5; color:var(--text); }
+.complete-xp { font-family:var(--font-pixel); font-size:12px; color:var(--xp-purple); margin:8px 0; }
+.complete-buttons { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; }
+
+/* ===== ACHIEVEMENTS ===== */
+#achievements { background:var(--bg-dark); padding:20px; gap:12px; }
+.achieve-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px; width:100%; max-width:700px; }
+.achieve-card {
+  background:var(--bg-card); border:2px solid var(--border); padding:12px;
+  display:flex; gap:10px; align-items:center; transition:all 0.2s;
+}
+.achieve-card.earned { border-color:var(--gold); background:rgba(246,193,119,0.05); }
+.achieve-card.locked { opacity:0.4; }
+.achieve-icon { font-size:28px; min-width:36px; text-align:center; }
+.achieve-info { flex:1; }
+.achieve-name { font-family:var(--font-pixel); font-size:8px; color:var(--gold); margin-bottom:4px; }
+.achieve-desc { font-size:11px; color:var(--text-dim); }
+
+/* ===== SETTINGS ===== */
+#settings { background:var(--bg-dark); justify-content:center; gap:16px; padding:20px; }
+.settings-panel {
+  background:var(--bg-card); border:2px solid var(--border); padding:24px;
+  width:100%; max-width:400px;
+}
+.setting-row { display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid var(--border); }
+.setting-label { font-family:var(--font-pixel); font-size:9px; color:var(--text); }
+.setting-toggle {
+  width:48px; height:24px; background:var(--border); border:none;
+  cursor:pointer; position:relative; transition:background 0.3s;
+}
+.setting-toggle.on { background:var(--success); }
+.setting-toggle::after {
+  content:''; position:absolute; top:3px; left:3px; width:18px; height:18px;
+  background:#fff; transition:left 0.3s;
+}
+.setting-toggle.on::after { left:27px; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width:500px) {
+  .char-card { width:140px; }
+  .diff-card { width:160px; }
+  .map-node { width:56px; height:56px; font-size:22px; }
+  .bar-bg { width:70px; }
+}
+
+/* ===== SCREEN SHAKE ===== */
+.screen-shake { animation:screenShake 0.3s ease-out; }
+@keyframes screenShake {
+  0%,100%{transform:translate(0);}
+  10%{transform:translate(-5px,-3px);}
+  30%{transform:translate(5px,2px);}
+  50%{transform:translate(-3px,5px);}
+  70%{transform:translate(3px,-2px);}
+  90%{transform:translate(-2px,3px);}
+}
+
+/* ===== PROGRESS ===== */
+.progress-container {
+  width:100%; max-width:400px; height:16px; background:#111;
+  border:2px solid var(--border); position:relative;
+}
+.progress-fill { height:100%; transition:width 0.4s ease; }
+.progress-text {
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  font-family:var(--font-pixel); font-size:7px; color:#fff; text-shadow:1px 1px 0 #000;
+}
+
+/* ===== BOSS INTRO ===== */
+.boss-intro {
+  position:absolute; top:0; left:0; width:100%; height:100%;
+  background:rgba(0,0,0,0.9); display:flex; flex-direction:column;
+  align-items:center; justify-content:center; z-index:50;
+  animation:bossAppear 1s ease-out;
+}
+@keyframes bossAppear { from{opacity:0;} to{opacity:1;} }
+.boss-sprite { font-size:80px; animation:bossFloat 2s ease-in-out infinite; }
+@keyframes bossFloat { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-10px);} }
+.boss-name { font-family:var(--font-pixel); font-size:16px; color:var(--primary); margin:12px 0; text-shadow:0 0 15px rgba(233,69,96,0.5); }
+.boss-hp-bar { width:80%; max-width:400px; height:20px; background:#111; border:2px solid var(--primary); margin:8px 0; position:relative; }
+.boss-hp-fill { height:100%; background:var(--hp-red); transition:width 0.5s; }
+
+/* Tooltip */
+.tooltip { position:relative; }
+.tooltip-text {
+  visibility:hidden; font-family:var(--font-pixel); font-size:7px;
+  background:var(--bg-card); border:1px solid var(--gold); color:var(--text);
+  padding:6px 10px; position:absolute; bottom:110%; left:50%;
+  transform:translateX(-50%); white-space:nowrap; z-index:10;
+}
+.tooltip:hover .tooltip-text { visibility:visible; }
+
+/* Lang toggle */
+.lang-toggle {
+  position:fixed; top:10px; right:10px; z-index:999;
+  font-family:var(--font-pixel); font-size:8px; padding:6px 12px;
+  background:var(--bg-card); border:2px solid var(--border); color:var(--text);
+  cursor:pointer; transition:all 0.2s;
+}
+.lang-toggle:hover { border-color:var(--gold); }
+
+/* Sound toggle */
+.sound-toggle {
+  position:fixed; top:10px; right:90px; z-index:999;
+  font-size:18px; background:none; border:2px solid var(--border);
+  color:var(--text); cursor:pointer; padding:4px 8px; transition:all 0.2s;
+  background:var(--bg-card);
+}
+.sound-toggle:hover { border-color:var(--gold); }
+</style>
+</head>
+<body>
+
+<canvas id="particle-canvas"></canvas>
+<button class="lang-toggle" id="langBtn" onclick="toggleLang()">EN/中</button>
+<button class="sound-toggle" id="soundBtn" onclick="toggleSound()">🔊</button>
+
+<!-- TITLE SCREEN -->
+<div id="title-screen" class="screen active">
+  <div class="title-stars" id="stars-container"></div>
+  <div class="title-pixel-art">⚔️</div>
+  <div class="game-title">
+    華語英雄傳<br>
+    <span style="font-size:clamp(10px,2vw,18px);color:var(--text);">MANDARIN QUEST</span>
+  </div>
+  <div class="game-subtitle blink" data-i18n="pressStart">▶ 按下開始 PRESS START ◀</div>
+  <div class="title-buttons">
+    <button class="pixel-btn gold" onclick="goScreen('char-select')" data-i18n="newGame">新遊戲 NEW GAME</button>
+    <button class="pixel-btn blue" id="continueBtn" onclick="loadAndContinue()" data-i18n="continue" style="display:none">繼續 CONTINUE</button>
+    <button class="pixel-btn small" onclick="goScreen('achievements')" data-i18n="achievements">成就 ACHIEVEMENTS</button>
+    <button class="pixel-btn small" onclick="goScreen('settings')" data-i18n="settings">設定 SETTINGS</button>
+  </div>
+  <div class="version-tag">v1.0 — GitHub Pages Edition</div>
+</div>
+
+<!-- CHARACTER SELECT -->
+<div id="char-select" class="screen">
+  <div class="game-title" style="font-size:clamp(12px,3vw,20px);margin:20px 0" data-i18n="chooseHero">選擇你的英雄 CHOOSE YOUR HERO</div>
+  <div class="char-grid" id="charGrid"></div>
+  <button class="pixel-btn gold" onclick="confirmCharacter()" id="confirmCharBtn" data-i18n="confirm" style="margin-top:16px;">確認 CONFIRM</button>
+  <button class="pixel-btn small" onclick="goScreen('title-screen')" data-i18n="back" style="margin-top:8px;">返回 BACK</button>
+</div>
+
+<!-- DIFFICULTY SELECT -->
+<div id="diff-select" class="screen">
+  <div class="game-title" style="font-size:clamp(12px,3vw,20px);margin:20px 0" data-i18n="chooseDiff">選擇難度 CHOOSE DIFFICULTY</div>
+  <div class="diff-grid" id="diffGrid"></div>
+  <button class="pixel-btn gold" onclick="confirmDifficulty()" id="confirmDiffBtn" data-i18n="startAdventure" style="margin-top:16px;">開始冒險 START</button>
+  <button class="pixel-btn small" onclick="goScreen('char-select')" data-i18n="back" style="margin-top:8px;">返回 BACK</button>
+</div>
+
+<!-- WORLD MAP -->
+<div id="world-map" class="screen">
+  <div class="map-hud" id="mapHud"></div>
+  <div class="map-title" data-i18n="worldMap">🗺️ 冒險地圖 ADVENTURE MAP</div>
+  <div class="map-container" id="mapContainer"></div>
+  <div class="map-bottom-btns">
+    <button class="pixel-btn small" onclick="goScreen('achievements')" data-i18n="achievements">🏆 成就</button>
+    <button class="pixel-btn small" onclick="goScreen('settings')" data-i18n="settings">⚙️ 設定</button>
+    <button class="pixel-btn small" onclick="saveGame();goScreen('title-screen')" data-i18n="saveQuit">💾 存檔</button>
+  </div>
+</div>
+
+<!-- GAME SCREEN -->
+<div id="game-screen" class="screen">
+  <div class="game-hud-top" id="gameHud"></div>
+  <div class="game-area" id="gameArea"></div>
+  <div style="display:flex;gap:8px;margin-top:8px;">
+    <button class="pixel-btn small" onclick="quitLevel()" data-i18n="retreat">🏃 撤退 RETREAT</button>
+  </div>
+</div>
+
+<!-- LEVEL COMPLETE -->
+<div id="level-complete" class="screen"></div>
+
+<!-- ACHIEVEMENTS -->
+<div id="achievements" class="screen">
+  <div class="game-title" style="font-size:clamp(12px,3vw,20px);margin:20px 0" data-i18n="achievementWall">🏆 成就殿堂 HALL OF FAME</div>
+  <div class="achieve-grid" id="achieveGrid"></div>
+  <button class="pixel-btn small" onclick="goBack()" data-i18n="back" style="margin-top:16px;">返回 BACK</button>
+</div>
+
+<!-- SETTINGS -->
+<div id="settings" class="screen">
+  <div class="game-title" style="font-size:clamp(12px,3vw,20px);margin:20px 0" data-i18n="settingsTitle">⚙️ 設定 SETTINGS</div>
+  <div class="settings-panel" id="settingsPanel"></div>
+  <button class="pixel-btn small" onclick="goBack()" data-i18n="back" style="margin-top:16px;">返回 BACK</button>
+</div>
+
+<script>
+// ============================================================
+//  MANDARIN QUEST — 華語英雄傳
+//  A single-file RPG Chinese learning game
+// ============================================================
+
+// ===== I18N =====
+const LANG = {
+  zh: {
+    pressStart:'▶ 按下開始 ◀', newGame:'新遊戲', continue:'繼續遊戲', achievements:'成就',
+    settings:'設定', chooseHero:'選擇你的英雄', confirm:'確認', back:'返回',
+    chooseDiff:'選擇難度', startAdventure:'開始冒險！', worldMap:'🗺️ 冒險地圖',
+    saveQuit:'💾 存檔離開', retreat:'🏃 撤退', achievementWall:'🏆 成就殿堂',
+    settingsTitle:'⚙️ 設定', levelComplete:'🎉 關卡完成！', score:'得分',
+    accuracy:'正確率', combo:'最高連擊', timeBonus:'時間加成', xpGained:'獲得經驗值',
+    nextLevel:'下一關', replayLevel:'重玩', backToMap:'回到地圖', bossDefeated:'🐉 Boss 已擊敗！',
+    correct:'正確！', wrong:'錯誤！', timeUp:'⏰ 時間到！', perfect:'完美！',
+    great:'太棒了！', good:'不錯！', tryAgain:'再試試！', levelUp:'⬆️ 升級了！',
+    sound:'音效', language:'語言', resetData:'重置資料', confirmReset:'確定要重置所有資料嗎？',
+    hp:'HP', xp:'XP', lv:'LV', questionN:'第 {n} 題', totalQ:'共 {t} 題',
+    selectTone:'選出正確的聲調', matchPairs:'翻牌配對漢字', arrangeWords:'排列正確語序',
+    answerQuestion:'回答文化問題', bossChallenge:'Boss 混合挑戰', tapToStart:'點擊開始',
+    stars3:'⭐⭐⭐', stars2:'⭐⭐☆', stars1:'⭐☆☆', stars0:'☆☆☆',
+    char1:'書生', char2:'俠客', char3:'仙女',
+    char1d:'學識淵博，答對加成+10%', char2d:'身手敏捷，計時+5秒', char3d:'靈氣充盈，錯誤恢復HP',
+    diff1:'初級', diff2:'中級', diff3:'高級',
+    diff1d:'HSK 1-2 基礎詞彙', diff2d:'HSK 3-4 日常溝通', diff3d:'HSK 5-6 進階表達',
+    lvl1:'聲調試煉', lvl2:'漢字迷宮', lvl3:'語法陣法', lvl4:'文化殿堂', lvl5:'龍王殿',
+    checkAnswer:'確認答案', submit:'提交',
+  },
+  en: {
+    pressStart:'▶ PRESS START ◀', newGame:'NEW GAME', continue:'CONTINUE', achievements:'ACHIEVEMENTS',
+    settings:'SETTINGS', chooseHero:'CHOOSE YOUR HERO', confirm:'CONFIRM', back:'BACK',
+    chooseDiff:'SELECT DIFFICULTY', startAdventure:'START ADVENTURE!', worldMap:'🗺️ ADVENTURE MAP',
+    saveQuit:'💾 SAVE & QUIT', retreat:'🏃 RETREAT', achievementWall:'🏆 HALL OF FAME',
+    settingsTitle:'⚙️ SETTINGS', levelComplete:'🎉 LEVEL COMPLETE!', score:'Score',
+    accuracy:'Accuracy', combo:'Max Combo', timeBonus:'Time Bonus', xpGained:'XP Gained',
+    nextLevel:'NEXT LEVEL', replayLevel:'REPLAY', backToMap:'BACK TO MAP', bossDefeated:'🐉 Boss Defeated!',
+    correct:'Correct!', wrong:'Wrong!', timeUp:'⏰ Time Up!', perfect:'PERFECT!',
+    great:'GREAT!', good:'Good!', tryAgain:'Try Again!', levelUp:'⬆️ LEVEL UP!',
+    sound:'Sound', language:'Language', resetData:'Reset Data', confirmReset:'Reset all data? This cannot be undone.',
+    hp:'HP', xp:'XP', lv:'LV', questionN:'Q {n}', totalQ:'of {t}',
+    selectTone:'Select the correct tone', matchPairs:'Match the character pairs', arrangeWords:'Arrange words in correct order',
+    answerQuestion:'Answer the culture question', bossChallenge:'Boss Mixed Challenge', tapToStart:'Tap to Start',
+    stars3:'⭐⭐⭐', stars2:'⭐⭐☆', stars1:'⭐☆☆', stars0:'☆☆☆',
+    char1:'Scholar', char2:'Warrior', char3:'Fairy',
+    char1d:'+10% score bonus on correct', char2d:'+5 seconds on timer', char3d:'Recover HP on mistakes',
+    diff1:'Beginner', diff2:'Intermediate', diff3:'Advanced',
+    diff1d:'HSK 1-2 Basic vocabulary', diff2d:'HSK 3-4 Daily communication', diff3d:'HSK 5-6 Advanced expression',
+    lvl1:'Tone Trial', lvl2:'Character Maze', lvl3:'Grammar Formation', lvl4:'Culture Hall', lvl5:"Dragon's Lair",
+    checkAnswer:'CHECK', submit:'SUBMIT',
+  }
+};
+
+let currentLang = 'zh';
+function t(key) { return LANG[currentLang][key] || LANG.zh[key] || key; }
+function toggleLang() {
+  currentLang = currentLang === 'zh' ? 'en' : 'zh';
+  document.getElementById('langBtn').textContent = currentLang === 'zh' ? 'EN/中' : '中/EN';
+  updateI18N();
+  sfx('click');
+}
+function updateI18N() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (LANG[currentLang][key]) el.textContent = LANG[currentLang][key];
+  });
+}
+
+// ===== AUDIO ENGINE =====
+let audioCtx = null;
+let soundEnabled = true;
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+function toggleSound() {
+  soundEnabled = !soundEnabled;
+  document.getElementById('soundBtn').textContent = soundEnabled ? '🔊' : '🔇';
+}
+
+function sfx(type) {
+  if (!soundEnabled) return;
+  try {
+    const ctx = getAudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    const now = ctx.currentTime;
+    switch(type) {
+      case 'correct':
+        osc.type='sine'; osc.frequency.setValueAtTime(523,now);
+        osc.frequency.setValueAtTime(659,now+0.1); osc.frequency.setValueAtTime(784,now+0.2);
+        gain.gain.setValueAtTime(0.3,now); gain.gain.exponentialRampToValueAtTime(0.01,now+0.4);
+        osc.start(now); osc.stop(now+0.4); break;
+      case 'wrong':
+        osc.type='sawtooth'; osc.frequency.setValueAtTime(200,now);
+        osc.frequency.setValueAtTime(150,now+0.15);
+        gain.gain.setValueAtTime(0.2,now); gain.gain.exponentialRampToValueAtTime(0.01,now+0.3);
+        osc.start(now); osc.stop(now+0.3); break;
+      case 'click':
+        osc.type='square'; osc.frequency.setValueAtTime(800,now);
+        gain.gain.setValueAtTime(0.1,now); gain.gain.exponentialRampToValueAtTime(0.01,now+0.08);
+        osc.start(now); osc.stop(now+0.08); break;
+      case 'levelup':
+        osc.type='sine';
+        [523,587,659,784,880,1047].forEach((f,i) => osc.frequency.setValueAtTime(f,now+i*0.1));
+        gain.gain.setValueAtTime(0.3,now); gain.gain.exponentialRampToValueAtTime(0.01,now+0.7);
+        osc.start(now); osc.stop(now+0.7); break;
+      case 'combo':
+        osc.type='triangle'; osc.frequency.setValueAtTime(880,now);
+        osc.frequency.setValueAtTime(1100,now+0.05);
+        gain.gain.setValueAtTime(0.15,now); gain.gain.exponentialRampToValueAtTime(0.01,now+0.15);
+        osc.start(now); osc.stop(now+0.15); break;
+      case 'boss':
+        osc.type='sawtooth'; osc.frequency.setValueAtTime(100,now);
+        osc.frequency.linearRampToValueAtTime(50,now+1);
+        gain.gain.setValueAtTime(0.25,now); gain.gain.exponentialRampToValueAtTime(0.01,now+1.2);
+        osc.start(now); osc.stop(now+1.2); break;
+      case 'star':
+        osc.type='sine'; osc.frequency.setValueAtTime(1047,now);
+        osc.frequency.setValueAtTime(1319,now+0.12);
+        gain.gain.setValueAtTime(0.2,now); gain.gain.exponentialRampToValueAtTime(0.01,now+0.3);
+        osc.start(now); osc.stop(now+0.3); break;
+      case 'tone1':
+        osc.type='sine'; osc.frequency.setValueAtTime(300,now);
+        gain.gain.setValueAtTime(0.3,now); gain.gain.exponentialRampToValueAtTime(0.01,now+0.5);
+        osc.start(now); osc.stop(now+0.5); break;
+      case 'tone2':
+        osc.type='sine'; osc.frequency.setValueAtTime(250,now);
+        osc.frequency.linearRampToValueAtTime(350,now+0.4);
+        gain.gain.setValueAtTime(0.3,now); gain.gain.exponentialRampToValueAtTime(0.01,now+0.5);
+        osc.start(now); osc.stop(now+0.5); break;
+      case 'tone3':
+        osc.type='sine'; osc.frequency.setValueAtTime(280,now);
+        osc.frequency.linearRampToValueAtTime(220,now+0.2);
+        osc.frequency.linearRampToValueAtTime(300,now+0.4);
+        gain.gain.setValueAtTime(0.3,now); gain.gain.exponentialRampToValueAtTime(0.01,now+0.5);
+        osc.start(now); osc.stop(now+0.5); break;
+      case 'tone4':
+        osc.type='sine'; osc.frequency.setValueAtTime(380,now);
+        osc.frequency.linearRampToValueAtTime(200,now+0.3);
+        gain.gain.setValueAtTime(0.3,now); gain.gain.exponentialRampToValueAtTime(0.01,now+0.4);
+        osc.start(now); osc.stop(now+0.4); break;
+    }
+  } catch(e) {}
+}
+
+// ===== PARTICLE SYSTEM =====
+const canvas = document.getElementById('particle-canvas');
+const pCtx = canvas.getContext('2d');
+let particles = [];
+function resizeCanvas() { canvas.width=window.innerWidth; canvas.height=window.innerHeight; }
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+function spawnParticles(x, y, count, color, spread=100) {
+  for (let i=0; i<count; i++) {
+    particles.push({
+      x, y,
+      vx: (Math.random()-0.5)*spread*0.08,
+      vy: (Math.random()-0.5)*spread*0.08 - 2,
+      life: 1,
+      decay: 0.01 + Math.random()*0.02,
+      size: 2 + Math.random()*4,
+      color
+    });
+  }
+}
+
+function spawnFireworks(x, y) {
+  const colors = ['#f6c177','#eb6f92','#9ccfd8','#c4a7e7','#3e8fb0','#e94560'];
+  for (let i=0; i<60; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 1 + Math.random() * 4;
+    particles.push({
+      x, y,
+      vx: Math.cos(angle)*speed,
+      vy: Math.sin(angle)*speed,
+      life: 1,
+      decay: 0.008 + Math.random()*0.015,
+      size: 2 + Math.random()*3,
+      color: colors[Math.floor(Math.random()*colors.length)]
+    });
+  }
+}
+
+function animateParticles() {
+  pCtx.clearRect(0, 0, canvas.width, canvas.height);
+  particles = particles.filter(p => p.life > 0);
+  particles.forEach(p => {
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vy += 0.04;
+    p.life -= p.decay;
+    pCtx.globalAlpha = p.life;
+    pCtx.fillStyle = p.color;
+    pCtx.fillRect(Math.floor(p.x), Math.floor(p.y), p.size, p.size);
+  });
+  pCtx.globalAlpha = 1;
+  requestAnimationFrame(animateParticles);
+}
+animateParticles();
+
+function showFeedback(text, color) {
+  const el = document.createElement('div');
+  el.className = 'feedback-popup';
+  el.style.color = color;
+  el.style.textShadow = `0 0 20px ${color}`;
+  el.textContent = text;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 900);
+}
+
+// ===== GAME DATA =====
+const CHARACTERS = [
+  { id:'scholar', emoji:'📚', nameKey:'char1', descKey:'char1d', bonus:'score', stats:{INT:9,AGI:5,LCK:6} },
+  { id:'warrior', emoji:'⚔️', nameKey:'char2', descKey:'char2d', bonus:'time', stats:{INT:6,AGI:9,LCK:5} },
+  { id:'fairy', emoji:'🧚', nameKey:'char3', descKey:'char3d', bonus:'hp', stats:{INT:7,AGI:6,LCK:8} },
+];
+
+const DIFFICULTIES = [
+  { id:'easy', icon:'🌱', nameKey:'diff1', descKey:'diff1d', timeMult:1.5, scoreMult:0.8 },
+  { id:'medium', icon:'🔥', nameKey:'diff2', descKey:'diff2d', timeMult:1.0, scoreMult:1.0 },
+  { id:'hard', icon:'💀', nameKey:'diff3', descKey:'diff3d', timeMult:0.7, scoreMult:1.5 },
+];
+
+const LEVELS = [
+  { id:1, type:'tone', emoji:'🎵', nameKey:'lvl1', timeLimit:60 },
+  { id:2, type:'memory', emoji:'🀄', nameKey:'lvl2', timeLimit:90 },
+  { id:3, type:'grammar', emoji:'📝', nameKey:'lvl3', timeLimit:75 },
+  { id:4, type:'culture', emoji:'🏯', nameKey:'lvl4', timeLimit:60 },
+  { id:5, type:'boss', emoji:'🐉', nameKey:'lvl5', timeLimit:120, isBoss:true },
+];
+
+const ACHIEVEMENTS = [
+  { id:'first_win', icon:'🏅', name:'初試身手', nameEn:'First Victory', desc:'完成第一個關卡', descEn:'Complete your first level' },
+  { id:'perfect_score', icon:'💯', name:'滿分達人', nameEn:'Perfect Score', desc:'任何關卡獲得3星', descEn:'Get 3 stars on any level' },
+  { id:'combo5', icon:'🔥', name:'連擊新星', nameEn:'Combo Star', desc:'達成5連擊', descEn:'Achieve a 5-hit combo' },
+  { id:'combo10', icon:'💥', name:'連擊大師', nameEn:'Combo Master', desc:'達成10連擊', descEn:'Achieve a 10-hit combo' },
+  { id:'all_levels', icon:'🏆', name:'征服者', nameEn:'Conqueror', desc:'完成所有關卡', descEn:'Complete all levels' },
+  { id:'boss_slayer', icon:'🐉', name:'屠龍勇士', nameEn:'Dragon Slayer', desc:'擊敗最終Boss', descEn:'Defeat the final boss' },
+  { id:'tone_master', icon:'🎵', name:'聲調大師', nameEn:'Tone Master', desc:'聲調關卡滿分', descEn:'Perfect score on Tone Trial' },
+  { id:'speed_demon', icon:'⚡', name:'閃電俠', nameEn:'Speed Demon', desc:'剩餘50%以上時間通關', descEn:'Complete a level with 50%+ time remaining' },
+  { id:'polyglot', icon:'🌍', name:'語言通', nameEn:'Polyglot', desc:'用雙語都玩過一次', descEn:'Play in both languages' },
+  { id:'level5', icon:'⬆️', name:'實力派', nameEn:'Rising Star', desc:'角色達到5級', descEn:'Reach character level 5' },
+];
+
+// ===== QUESTION BANKS =====
+const TONE_QUESTIONS = {
+  easy: [
+    { char:'媽', pinyin:'mā', tone:1, options:['mā','má','mǎ','mà'] },
+    { char:'麻', pinyin:'má', tone:2, options:['mā','má','mǎ','mà'] },
+    { char:'馬', pinyin:'mǎ', tone:3, options:['mā','má','mǎ','mà'] },
+    { char:'罵', pinyin:'mà', tone:4, options:['mā','má','mǎ','mà'] },
+    { char:'他', pinyin:'tā', tone:1, options:['tā','tá','tǎ','tà'] },
+    { char:'大', pinyin:'dà', tone:4, options:['dā','dá','dǎ','dà'] },
+    { char:'好', pinyin:'hǎo', tone:3, options:['hāo','háo','hǎo','hào'] },
+    { char:'來', pinyin:'lái', tone:2, options:['lāi','lái','lǎi','lài'] },
+    { char:'你', pinyin:'nǐ', tone:3, options:['nī','ní','nǐ','nì'] },
+    { char:'四', pinyin:'sì', tone:4, options:['sī','sí','sǐ','sì'] },
+  ],
+  medium: [
+    { char:'銀', pinyin:'yín', tone:2, options:['yīn','yín','yǐn','yìn'] },
+    { char:'影', pinyin:'yǐng', tone:3, options:['yīng','yíng','yǐng','yìng'] },
+    { char:'應', pinyin:'yìng', tone:4, options:['yīng','yíng','yǐng','yìng'] },
+    { char:'鮮', pinyin:'xiān', tone:1, options:['xiān','xián','xiǎn','xiàn'] },
+    { char:'現', pinyin:'xiàn', tone:4, options:['xiān','xián','xiǎn','xiàn'] },
+    { char:'險', pinyin:'xiǎn', tone:3, options:['xiān','xián','xiǎn','xiàn'] },
+    { char:'練', pinyin:'liàn', tone:4, options:['liān','lián','liǎn','liàn'] },
+    { char:'連', pinyin:'lián', tone:2, options:['liān','lián','liǎn','liàn'] },
+    { char:'臉', pinyin:'liǎn', tone:3, options:['liān','lián','liǎn','liàn'] },
+    { char:'旅', pinyin:'lǚ', tone:3, options:['lū','lú','lǚ','lù'] },
+  ],
+  hard: [
+    { char:'恤', pinyin:'xù', tone:4, options:['xū','xú','xǔ','xù'] },
+    { char:'蓄', pinyin:'xù', tone:4, options:['xū','xú','xǔ','xù'] },
+    { char:'絮', pinyin:'xù', tone:4, options:['xū','xú','xǔ','xù'] },
+    { char:'畜', pinyin:'chù', tone:4, options:['chū','chú','chǔ','chù'] },
+    { char:'矗', pinyin:'chù', tone:4, options:['chū','chú','chǔ','chù'] },
+    { char:'瞥', pinyin:'piē', tone:1, options:['piē','pié','piě','piè'] },
+    { char:'僻', pinyin:'pì', tone:4, options:['pī','pí','pǐ','pì'] },
+    { char:'氛', pinyin:'fēn', tone:1, options:['fēn','fén','fěn','fèn'] },
+    { char:'忿', pinyin:'fèn', tone:4, options:['fēn','fén','fěn','fèn'] },
+    { char:'紊', pinyin:'wěn', tone:3, options:['wēn','wén','wěn','wèn'] },
+  ]
+};
+
+const MEMORY_PAIRS = {
+  easy: [
+    ['你好','Hello'], ['謝謝','Thanks'], ['再見','Bye'], ['老師','Teacher'],
+    ['學生','Student'], ['朋友','Friend'], ['吃飯','Eat'], ['喝水','Drink'],
+  ],
+  medium: [
+    ['經驗','Experience'], ['旅行','Travel'], ['環境','Environment'], ['練習','Practice'],
+    ['比較','Compare'], ['機會','Chance'], ['影響','Influence'], ['重要','Important'],
+  ],
+  hard: [
+    ['矛盾','Contradiction'], ['奧妙','Profound'], ['瀰漫','Pervade'], ['蹊蹺','Suspicious'],
+    ['曖昧','Ambiguous'], ['彷彿','As if'], ['震撼','Shock'], ['蛻變','Transform'],
+  ]
+};
+
+const GRAMMAR_QUESTIONS = {
+  easy: [
+    { words:['我','喜歡','吃','蘋果'], answer:'我喜歡吃蘋果', hint:'I like eating apples' },
+    { words:['她','是','我的','老師'], answer:'她是我的老師', hint:'She is my teacher' },
+    { words:['今天','天氣','很','好'], answer:'今天天氣很好', hint:'The weather is nice today' },
+    { words:['你','想','喝','什麼'], answer:'你想喝什麼', hint:'What do you want to drink?' },
+    { words:['他','每天','都','跑步'], answer:'他每天都跑步', hint:'He runs every day' },
+  ],
+  medium: [
+    { words:['雖然','很累','但是','他','還是','繼續','工作'], answer:'雖然很累但是他還是繼續工作', hint:'Although tired, he still continues working' },
+    { words:['如果','明天','下雨','我們','就','不','去'], answer:'如果明天下雨我們就不去', hint:'If it rains tomorrow, we won\'t go' },
+    { words:['他','比','我','跑','得','快'], answer:'他比我跑得快', hint:'He runs faster than me' },
+    { words:['這個','電影','我','已經','看過','了'], answer:'這個電影我已經看過了', hint:'I\'ve already seen this movie' },
+    { words:['老師','讓','學生','寫','作業'], answer:'老師讓學生寫作業', hint:'The teacher has students do homework' },
+  ],
+  hard: [
+    { words:['與其','抱怨','不如','積極','面對','挑戰'], answer:'與其抱怨不如積極面對挑戰', hint:'Rather than complain, face challenges proactively' },
+    { words:['他','之所以','成功','是','因為','不斷','努力'], answer:'他之所以成功是因為不斷努力', hint:'He succeeded because of constant effort' },
+    { words:['無論','遇到','什麼','困難','都','不要','放棄'], answer:'無論遇到什麼困難都不要放棄', hint:'No matter what difficulty, don\'t give up' },
+    { words:['隨著','經濟','的','發展','人們','的','生活','水平','提高','了'], answer:'隨著經濟的發展人們的生活水平提高了', hint:'Living standards improved with economic development' },
+    { words:['這本書','值得','一','讀','再','讀'], answer:'這本書值得一讀再讀', hint:'This book is worth reading again and again' },
+  ]
+};
+
+const CULTURE_QUESTIONS = {
+  easy: [
+    { q:'中國人過年時說什麼？', qEn:'What do Chinese people say during New Year?', options:['新年快樂','生日快樂','早安','晚安'], answer:0 },
+    { q:'筷子是用來做什麼的？', qEn:'What are chopsticks used for?', options:['吃飯','寫字','梳頭','掃地'], answer:0 },
+    { q:'中國的首都是哪裡？', qEn:'What is the capital of China?', options:['上海','北京','廣州','成都'], answer:1 },
+    { q:'端午節吃什麼？', qEn:'What food is eaten during Dragon Boat Festival?', options:['月餅','粽子','湯圓','餃子'], answer:1 },
+    { q:'中文有幾個聲調？', qEn:'How many tones does Mandarin have?', options:['3個','4個','5個','6個'], answer:1 },
+  ],
+  medium: [
+    { q:'「入鄉隨俗」是什麼意思？', qEn:'What does "入鄉隨俗" mean?', options:['到新地方要適應當地習慣','進入鄉下生活','隨便做事','跟隨潮流'], answer:0 },
+    { q:'下列哪個不是中國四大發明？', qEn:'Which is NOT one of China\'s Four Great Inventions?', options:['造紙術','印刷術','電話','火藥'], answer:2 },
+    { q:'農曆新年通常在幾月？', qEn:'Chinese New Year usually falls in which months?', options:['3-4月','1-2月','11-12月','5-6月'], answer:1 },
+    { q:'「功夫」一詞最早的意思是？', qEn:'What was the original meaning of "功夫"?', options:['武術','時間與努力','力氣','戰爭'], answer:1 },
+    { q:'中國最長的河流是？', qEn:'What is the longest river in China?', options:['黃河','珠江','長江','淮河'], answer:2 },
+  ],
+  hard: [
+    { q:'「塞翁失馬」的寓意是？', qEn:'What is the moral of "The Old Man Lost His Horse"?', options:['禍福相依','騎馬很危險','老人很聰明','馬很重要'], answer:0 },
+    { q:'繁體字「龍」有幾畫？', qEn:'How many strokes does the traditional character 龍 have?', options:['12畫','14畫','16畫','18畫'], answer:2 },
+    { q:'「知音」典故來自誰？', qEn:'The story of "知音" (kindred spirit) involves whom?', options:['伯牙與鍾子期','李白與杜甫','孔子與孟子','劉備與諸葛亮'], answer:0 },
+    { q:'下列哪個成語形容「學習不求深入」？', qEn:'Which idiom means "learning without depth"?', options:['不恥下問','囫圇吞棗','學以致用','溫故知新'], answer:1 },
+    { q:'「四書」不包含下列哪本？', qEn:'Which is NOT part of the "Four Books"?', options:['大學','中庸','詩經','論語'], answer:2 },
+  ]
+};
+
+// ===== GAME STATE =====
+let state = {
+  screen: 'title-screen',
+  prevScreen: 'title-screen',
+  character: null,
+  difficulty: 'easy',
+  playerName: '',
+  hp: 100, maxHp: 100,
+  xp: 0, level: 1, xpToNext: 100,
+  score: 0,
+  totalScore: 0,
+  levelsCompleted: [],
+  levelStars: {},
+  achievements: [],
+  currentLevel: null,
+  combo: 0,
+  maxCombo: 0,
+  langUsed: { zh:false, en:false },
+};
+
+// ===== SCREEN MANAGEMENT =====
+function goScreen(id) {
+  sfx('click');
+  state.prevScreen = state.screen;
+  state.screen = id;
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const target = document.getElementById(id);
+  if (target) {
+    target.classList.add('active');
+    // Init screen-specific content
+    switch(id) {
+      case 'title-screen': initTitle(); break;
+      case 'char-select': initCharSelect(); break;
+      case 'diff-select': initDiffSelect(); break;
+      case 'world-map': initWorldMap(); break;
+      case 'achievements': initAchievements(); break;
+      case 'settings': initSettings(); break;
+    }
+  }
+}
+function goBack() {
+  const from = state.screen;
+  if (from === 'achievements' || from === 'settings') {
+    goScreen(state.prevScreen === from ? 'title-screen' : state.prevScreen);
+  } else {
+    goScreen('title-screen');
+  }
+}
+
+// ===== TITLE SCREEN =====
+function initTitle() {
+  // Stars
+  const sc = document.getElementById('stars-container');
+  if (sc.children.length === 0) {
+    for (let i=0; i<50; i++) {
+      const star = document.createElement('div');
+      star.className = 'star';
+      star.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*100}%;width:${1+Math.random()*2}px;height:${1+Math.random()*2}px;animation-delay:${Math.random()*3}s;animation-duration:${1+Math.random()*3}s;`;
+      sc.appendChild(star);
+    }
+  }
+  // Show continue button if save exists
+  const save = localStorage.getItem('mandarinQuest_save');
+  document.getElementById('continueBtn').style.display = save ? 'inline-block' : 'none';
+  // Track language used
+  state.langUsed[currentLang] = true;
+}
+
+// ===== CHARACTER SELECT =====
+function initCharSelect() {
+  const grid = document.getElementById('charGrid');
+  grid.innerHTML = '';
+  CHARACTERS.forEach(c => {
+    const card = document.createElement('div');
+    card.className = 'char-card' + (state.character === c.id ? ' selected' : '');
+    card.onclick = () => { state.character = c.id; initCharSelect(); sfx('click'); };
+    card.innerHTML = `
+      <div class="char-avatar">${c.emoji}</div>
+      <div class="char-name">${t(c.nameKey)}</div>
+      <div class="char-desc">${t(c.descKey)}</div>
+      <div class="char-stats">
+        ${Object.entries(c.stats).map(([k,v]) => `<div class="stat-item"><span class="stat-label">${k}</span><span class="stat-value">${v}</span></div>`).join('')}
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function confirmCharacter() {
+  if (!state.character) { showFeedback('⚠️', 'var(--gold)'); return; }
+  sfx('click');
+  goScreen('diff-select');
+}
+
+// ===== DIFFICULTY SELECT =====
+function initDiffSelect() {
+  const grid = document.getElementById('diffGrid');
+  grid.innerHTML = '';
+  DIFFICULTIES.forEach(d => {
+    const card = document.createElement('div');
+    card.className = 'diff-card' + (state.difficulty === d.id ? ' selected' : '');
+    card.onclick = () => { state.difficulty = d.id; initDiffSelect(); sfx('click'); };
+    card.innerHTML = `
+      <div class="diff-icon">${d.icon}</div>
+      <div class="diff-name">${t(d.nameKey)}</div>
+      <div class="diff-desc">${t(d.descKey)}</div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function confirmDifficulty() {
+  sfx('levelup');
+  state.hp = 100;
+  state.xp = 0;
+  state.level = 1;
+  state.score = 0;
+  state.totalScore = 0;
+  state.levelsCompleted = [];
+  state.levelStars = {};
+  goScreen('world-map');
+}
+
+// ===== WORLD MAP =====
+function initWorldMap() {
+  renderMapHud();
+  renderMap();
+}
+
+function renderMapHud() {
+  const charData = CHARACTERS.find(c => c.id === state.character) || CHARACTERS[0];
+  const hpPct = Math.max(0, (state.hp / state.maxHp) * 100);
+  const xpPct = (state.xp / state.xpToNext) * 100;
+  document.getElementById('mapHud').innerHTML = `
+    <div class="hud-left">
+      <div class="hud-avatar">${charData.emoji}</div>
+      <div class="hud-info">
+        <div class="hud-name">${t(charData.nameKey)}</div>
+        <div class="hud-bars">
+          <div class="bar-container">
+            <span class="bar-label">${t('hp')}</span>
+            <div class="bar-bg"><div class="bar-fill hp" style="width:${hpPct}%"></div></div>
+            <span class="bar-text">${state.hp}/${state.maxHp}</span>
+          </div>
+          <div class="bar-container">
+            <span class="bar-label">${t('xp')}</span>
+            <div class="bar-bg"><div class="bar-fill" style="width:${xpPct}%;background:var(--xp-purple)"></div></div>
+            <span class="bar-text">${state.xp}/${state.xpToNext}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="hud-right">
+      <div class="hud-score">🪙 ${state.totalScore}</div>
+      <div class="hud-level">${t('lv')} ${state.level}</div>
+    </div>
+  `;
+}
+
+function renderMap() {
+  const container = document.getElementById('mapContainer');
+  let html = '<div class="map-path">';
+  LEVELS.forEach((lvl, i) => {
+    const unlocked = i === 0 || state.levelsCompleted.includes(LEVELS[i-1].id);
+    const completed = state.levelsCompleted.includes(lvl.id);
+    const stars = state.levelStars[lvl.id] || 0;
+    const stateClass = completed ? 'completed' : (unlocked ? 'unlocked' : 'locked');
+    const bossClass = lvl.isBoss ? ' boss' : '';
+
+    if (i > 0) {
+      html += `<div class="map-connector ${unlocked ? 'unlocked' : ''}"></div>`;
+    }
+    html += `
+      <div class="map-node-wrapper">
+        <div class="map-node ${stateClass}${bossClass}" onclick="${unlocked ? `startLevel(${lvl.id})` : ''}" title="${t(lvl.nameKey)}">
+          ${lvl.emoji}
+        </div>
+        <div>
+          <div class="node-label">${t(lvl.nameKey)}</div>
+          <div class="node-stars">${completed ? (stars >= 3 ? '⭐⭐⭐' : stars >= 2 ? '⭐⭐☆' : '⭐☆☆') : '☆☆☆'}</div>
+        </div>
+      </div>
+    `;
+  });
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+// ===== LEVEL SYSTEM =====
+let levelState = {};
+let timerInterval = null;
+
+function startLevel(levelId) {
+  const lvl = LEVELS.find(l => l.id === levelId);
+  if (!lvl) return;
+  sfx(lvl.isBoss ? 'boss' : 'click');
+  state.currentLevel = lvl;
+  const diffObj = DIFFICULTIES.find(d => d.id === state.difficulty);
+  const charObj = CHARACTERS.find(c => c.id === state.character);
+
+  levelState = {
+    levelId: lvl.id,
+    type: lvl.type,
+    timeLimit: Math.floor(lvl.timeLimit * (diffObj?.timeMult || 1) + (charObj?.bonus === 'time' ? 5 : 0)),
+    timeLeft: 0,
+    score: 0,
+    correct: 0,
+    wrong: 0,
+    total: 0,
+    combo: 0,
+    maxCombo: 0,
+    questionIndex: 0,
+    questions: [],
+    answered: false,
+    isBoss: !!lvl.isBoss,
+    bossHp: 100,
+  };
+  levelState.timeLeft = levelState.timeLimit;
+
+  goScreen('game-screen');
+  renderGameHud();
+
+  if (lvl.isBoss) {
+    showBossIntro(() => initLevelContent());
+  } else {
+    initLevelContent();
+  }
+}
+
+function showBossIntro(cb) {
+  const area = document.getElementById('gameArea');
+  area.innerHTML = `
+    <div class="boss-intro" id="bossIntro">
+      <div class="boss-sprite">🐉</div>
+      <div class="boss-name">龍王 DRAGON KING</div>
+      <div style="font-family:var(--font-pixel);font-size:9px;color:var(--text-dim);margin:8px;">${t('bossChallenge')}</div>
+      <button class="pixel-btn gold" onclick="document.getElementById('bossIntro').remove();(${cb.toString()})();">${t('tapToStart')}</button>
+    </div>
+  `;
+}
+
+function initLevelContent() {
+  const diff = state.difficulty;
+  switch(levelState.type) {
+    case 'tone': setupToneLevel(diff); break;
+    case 'memory': setupMemoryLevel(diff); break;
+    case 'grammar': setupGrammarLevel(diff); break;
+    case 'culture': setupCultureLevel(diff); break;
+    case 'boss': setupBossLevel(diff); break;
+  }
+  startTimer();
+}
+
+function renderGameHud() {
+  const lvl = state.currentLevel;
+  document.getElementById('gameHud').innerHTML = `
+    <div class="game-level-name">${lvl.emoji} ${t(lvl.nameKey)}</div>
+    <div class="game-timer" id="timerDisplay">⏱ ${levelState.timeLeft}s</div>
+    <div class="game-score-display" id="scoreDisplay">🪙 ${levelState.score}</div>
+  `;
+}
+
+function startTimer() {
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    levelState.timeLeft--;
+    const td = document.getElementById('timerDisplay');
+    if (td) td.textContent = `⏱ ${levelState.timeLeft}s`;
+    if (levelState.timeLeft <= 10 && td) td.style.color = '#ff4444';
+    if (levelState.timeLeft <= 0) {
+      clearInterval(timerInterval);
+      endLevel();
+    }
+  }, 1000);
+}
+
+function updateScoreDisplay() {
+  const sd = document.getElementById('scoreDisplay');
+  if (sd) sd.textContent = `🪙 ${levelState.score}`;
+}
+
+function addScore(base) {
+  const diffObj = DIFFICULTIES.find(d => d.id === state.difficulty);
+  const charObj = CHARACTERS.find(c => c.id === state.character);
+  let pts = Math.floor(base * (diffObj?.scoreMult || 1));
+  if (charObj?.bonus === 'score') pts = Math.floor(pts * 1.1);
+  pts += levelState.combo * 5; // combo bonus
+  levelState.score += pts;
+  updateScoreDisplay();
+  return pts;
+}
+
+function handleCorrect() {
+  sfx('correct');
+  levelState.correct++;
+  levelState.combo++;
+  if (levelState.combo > levelState.maxCombo) levelState.maxCombo = levelState.combo;
+  const pts = addScore(100);
+  spawnParticles(window.innerWidth/2, window.innerHeight/2, 15, 'var(--success)');
+  showFeedback(`+${pts}`, '#9ccfd8');
+  if (levelState.combo >= 5) { sfx('combo'); checkAchievement('combo5'); }
+  if (levelState.combo >= 10) { sfx('combo'); checkAchievement('combo10'); }
+  updateComboDisplay();
+
+  if (levelState.isBoss) {
+    levelState.bossHp = Math.max(0, levelState.bossHp - 12);
+    updateBossHp();
+    if (levelState.bossHp <= 0) { clearInterval(timerInterval); setTimeout(()=>endLevel(), 500); return; }
+  }
+}
+
+function handleWrong() {
+  sfx('wrong');
+  levelState.wrong++;
+  levelState.combo = 0;
+  updateComboDisplay();
+  document.getElementById('gameArea')?.classList.add('screen-shake');
+  setTimeout(() => document.getElementById('gameArea')?.classList.remove('screen-shake'), 300);
+  showFeedback(t('wrong'), '#eb6f92');
+  const charObj = CHARACTERS.find(c => c.id === state.character);
+  if (charObj?.bonus !== 'hp') {
+    state.hp = Math.max(0, state.hp - 5);
+  } else {
+    state.hp = Math.max(0, state.hp - 2); // fairy takes less damage
+  }
+}
+
+function updateComboDisplay() {
+  let cd = document.querySelector('.combo-display');
+  if (!cd) {
+    cd = document.createElement('div');
+    cd.className = 'combo-display';
+    document.getElementById('gameArea')?.appendChild(cd);
+  }
+  cd.textContent = levelState.combo > 1 ? `🔥 x${levelState.combo}` : '';
+  if (levelState.combo >= 5) cd.style.fontSize = '20px';
+  if (levelState.combo >= 10) { cd.style.fontSize = '24px'; cd.style.color = '#ff4444'; }
+}
+
+function updateBossHp() {
+  const fill = document.getElementById('bossHpFill');
+  if (fill) fill.style.width = levelState.bossHp + '%';
+}
+
+// ===== TONE LEVEL =====
+function setupToneLevel(diff) {
+  const bank = TONE_QUESTIONS[diff] || TONE_QUESTIONS.easy;
+  levelState.questions = shuffle([...bank]).slice(0, 8);
+  levelState.total = levelState.questions.length;
+  levelState.questionIndex = 0;
+  showToneQuestion();
+}
+
+function showToneQuestion() {
+  if (levelState.questionIndex >= levelState.questions.length) { clearInterval(timerInterval); endLevel(); return; }
+  const q = levelState.questions[levelState.questionIndex];
+  levelState.answered = false;
+  const area = document.getElementById('gameArea');
+  area.innerHTML = `
+    <div class="game-question">${t('selectTone')} (${levelState.questionIndex+1}/${levelState.total})</div>
+    <div class="game-prompt">${q.char}</div>
+    <button class="pixel-btn small blue" onclick="sfx('tone${q.tone}')" style="margin-bottom:8px;">🔊 ${currentLang==='zh'?'聽發音':'Listen'}</button>
+    <div class="game-options" id="toneOptions">
+      ${q.options.map((opt, i) => `<div class="game-option" onclick="checkTone(${i}, ${q.options.indexOf(q.pinyin)})">${opt}</div>`).join('')}
+    </div>
+  `;
+}
+
+function checkTone(selected, correct) {
+  if (levelState.answered) return;
+  levelState.answered = true;
+  const opts = document.querySelectorAll('#toneOptions .game-option');
+  opts[correct].classList.add('correct');
+  if (selected === correct) {
+    handleCorrect();
+  } else {
+    opts[selected].classList.add('wrong');
+    handleWrong();
+  }
+  setTimeout(() => { levelState.questionIndex++; showToneQuestion(); }, 1000);
+}
+
+// ===== MEMORY LEVEL =====
+function setupMemoryLevel(diff) {
+  const pairs = MEMORY_PAIRS[diff] || MEMORY_PAIRS.easy;
+  const selected = shuffle([...pairs]).slice(0, 6);
+  let cards = [];
+  selected.forEach(([zh, en], i) => {
+    cards.push({ id:i, text:zh, pairId:i, type:'zh' });
+    cards.push({ id:i+100, text:en, pairId:i, type:'en' });
+  });
+  cards = shuffle(cards);
+  levelState.memoryCards = cards;
+  levelState.flipped = [];
+  levelState.matched = [];
+  levelState.total = selected.length;
+  renderMemoryGrid();
+}
+
+function renderMemoryGrid() {
+  const cols = levelState.memoryCards.length <= 8 ? 4 : (levelState.memoryCards.length <= 12 ? 4 : 4);
+  const area = document.getElementById('gameArea');
+  area.innerHTML = `
+    <div class="game-question">${t('matchPairs')} (${levelState.matched.length}/${levelState.total})</div>
+    <div class="memory-grid" style="grid-template-columns:repeat(${cols},1fr);" id="memGrid">
+      ${levelState.memoryCards.map((card, i) => {
+        const isFlipped = levelState.flipped.includes(i) || levelState.matched.includes(card.pairId);
+        const isMatched = levelState.matched.includes(card.pairId);
+        return `<div class="memory-card ${isFlipped?'flipped':''} ${isMatched?'matched':''}" onclick="flipCard(${i})">
+          <div class="card-back">❓</div>
+          <div class="card-front">${card.text}</div>
+        </div>`;
+      }).join('')}
+    </div>
+  `;
+}
+
+function flipCard(index) {
+  const card = levelState.memoryCards[index];
+  if (levelState.matched.includes(card.pairId)) return;
+  if (levelState.flipped.includes(index)) return;
+  if (levelState.flipped.length >= 2) return;
+
+  sfx('click');
+  levelState.flipped.push(index);
+  renderMemoryGrid();
+
+  if (levelState.flipped.length === 2) {
+    const c1 = levelState.memoryCards[levelState.flipped[0]];
+    const c2 = levelState.memoryCards[levelState.flipped[1]];
+    if (c1.pairId === c2.pairId && c1.type !== c2.type) {
+      // Match!
+      levelState.matched.push(c1.pairId);
+      levelState.correct++;
+      handleCorrect();
+      setTimeout(() => {
+        levelState.flipped = [];
+        renderMemoryGrid();
+        if (levelState.matched.length >= levelState.total) { clearInterval(timerInterval); endLevel(); }
+      }, 500);
+    } else {
+      handleWrong();
+      setTimeout(() => {
+        levelState.flipped = [];
+        renderMemoryGrid();
+      }, 800);
+    }
+  }
+}
+
+// ===== GRAMMAR LEVEL =====
+function setupGrammarLevel(diff) {
+  const bank = GRAMMAR_QUESTIONS[diff] || GRAMMAR_QUESTIONS.easy;
+  levelState.questions = shuffle([...bank]).slice(0, 5);
+  levelState.total = levelState.questions.length;
+  levelState.questionIndex = 0;
+  showGrammarQuestion();
+}
+
+function showGrammarQuestion() {
+  if (levelState.questionIndex >= levelState.questions.length) { clearInterval(timerInterval); endLevel(); return; }
+  const q = levelState.questions[levelState.questionIndex];
+  levelState.answered = false;
+  levelState.grammarSlots = [];
+  levelState.grammarWords = shuffle([...q.words]);
+
+  const area = document.getElementById('gameArea');
+  area.innerHTML = `
+    <div class="game-question">${t('arrangeWords')} (${levelState.questionIndex+1}/${levelState.total})</div>
+    <div style="font-size:12px;color:var(--text-dim);margin-bottom:8px;">💡 ${q.hint}</div>
+    <div class="grammar-sentence" id="grammarSentence">
+      <span style="color:var(--text-dim);font-family:var(--font-pixel);font-size:8px;">${currentLang==='zh'?'點擊詞語排列句子':'Click words to build sentence'}</span>
+    </div>
+    <div class="grammar-bank" id="grammarBank">
+      ${levelState.grammarWords.map((w, i) => `<div class="grammar-word" onclick="addToSentence(${i})" id="gw-${i}">${w}</div>`).join('')}
+    </div>
+    <div style="margin-top:12px;display:flex;gap:8px;">
+      <button class="pixel-btn small green" onclick="checkGrammar()">${t('checkAnswer')}</button>
+      <button class="pixel-btn small" onclick="resetGrammar()">${currentLang==='zh'?'重排':'Reset'}</button>
+    </div>
+  `;
+}
+
+function addToSentence(wordIndex) {
+  if (levelState.grammarSlots.includes(wordIndex)) return;
+  sfx('click');
+  levelState.grammarSlots.push(wordIndex);
+  renderGrammarState();
+}
+
+function removeFromSentence(slotIndex) {
+  sfx('click');
+  levelState.grammarSlots.splice(slotIndex, 1);
+  renderGrammarState();
+}
+
+function renderGrammarState() {
+  const sentence = document.getElementById('grammarSentence');
+  const bank = document.getElementById('grammarBank');
+  if (!sentence || !bank) return;
+
+  sentence.innerHTML = levelState.grammarSlots.length === 0
+    ? `<span style="color:var(--text-dim);font-family:var(--font-pixel);font-size:8px;">${currentLang==='zh'?'點擊詞語排列句子':'Click words to build sentence'}</span>`
+    : levelState.grammarSlots.map((wi, si) =>
+        `<div class="grammar-word in-sentence" onclick="removeFromSentence(${si})">${levelState.grammarWords[wi]}</div>`
+      ).join('');
+
+  // Update bank
+  document.querySelectorAll('#grammarBank .grammar-word').forEach((el, i) => {
+    el.style.opacity = levelState.grammarSlots.includes(i) ? '0.3' : '1';
+    el.style.pointerEvents = levelState.grammarSlots.includes(i) ? 'none' : 'auto';
+  });
+}
+
+function resetGrammar() {
+  levelState.grammarSlots = [];
+  renderGrammarState();
+}
+
+function checkGrammar() {
+  if (levelState.answered) return;
+  const q = levelState.questions[levelState.questionIndex];
+  const playerAnswer = levelState.grammarSlots.map(i => levelState.grammarWords[i]).join('');
+  levelState.answered = true;
+
+  if (playerAnswer === q.answer) {
+    handleCorrect();
+    // Highlight green
+    document.querySelectorAll('#grammarSentence .grammar-word').forEach(el => el.classList.add('correct-pos'));
+  } else {
+    handleWrong();
+    document.querySelectorAll('#grammarSentence .grammar-word').forEach(el => el.classList.add('wrong-pos'));
+  }
+  setTimeout(() => { levelState.questionIndex++; showGrammarQuestion(); }, 1200);
+}
+
+// ===== CULTURE LEVEL =====
+function setupCultureLevel(diff) {
+  const bank = CULTURE_QUESTIONS[diff] || CULTURE_QUESTIONS.easy;
+  levelState.questions = shuffle([...bank]).slice(0, 5);
+  levelState.total = levelState.questions.length;
+  levelState.questionIndex = 0;
+  showCultureQuestion();
+}
+
+function showCultureQuestion() {
+  if (levelState.questionIndex >= levelState.questions.length) { clearInterval(timerInterval); endLevel(); return; }
+  const q = levelState.questions[levelState.questionIndex];
+  levelState.answered = false;
+
+  const area = document.getElementById('gameArea');
+  area.innerHTML = `
+    <div class="game-question">${t('answerQuestion')} (${levelState.questionIndex+1}/${levelState.total})</div>
+    <div style="font-family:var(--font-pixel);font-size:clamp(10px,2vw,14px);color:var(--gold);text-align:center;line-height:2;padding:8px;">
+      ${currentLang==='zh' ? q.q : q.qEn}
+    </div>
+    <div class="game-options" id="cultureOptions">
+      ${q.options.map((opt, i) => `<div class="game-option" onclick="checkCulture(${i}, ${q.answer})">${opt}</div>`).join('')}
+    </div>
+  `;
+}
+
+function checkCulture(selected, correct) {
+  if (levelState.answered) return;
+  levelState.answered = true;
+  const opts = document.querySelectorAll('#cultureOptions .game-option');
+  opts[correct].classList.add('correct');
+  if (selected === correct) {
+    handleCorrect();
+  } else {
+    opts[selected].classList.add('wrong');
+    handleWrong();
+  }
+  setTimeout(() => { levelState.questionIndex++; showCultureQuestion(); }, 1000);
+}
+
+// ===== BOSS LEVEL =====
+function setupBossLevel(diff) {
+  // Mix questions from all types
+  const tones = shuffle([...(TONE_QUESTIONS[diff] || TONE_QUESTIONS.easy)]).slice(0, 3);
+  const cultures = shuffle([...(CULTURE_QUESTIONS[diff] || CULTURE_QUESTIONS.easy)]).slice(0, 3);
+  const grammars = shuffle([...(GRAMMAR_QUESTIONS[diff] || GRAMMAR_QUESTIONS.easy)]).slice(0, 2);
+
+  let mixed = [];
+  tones.forEach(q => mixed.push({ bossType:'tone', data:q }));
+  cultures.forEach(q => mixed.push({ bossType:'culture', data:q }));
+  grammars.forEach(q => mixed.push({ bossType:'grammar', data:q }));
+  mixed = shuffle(mixed);
+
+  levelState.questions = mixed;
+  levelState.total = mixed.length;
+  levelState.questionIndex = 0;
+  levelState.bossHp = 100;
+  showBossQuestion();
+}
+
+function showBossQuestion() {
+  if (levelState.questionIndex >= levelState.questions.length || levelState.bossHp <= 0) {
+    clearInterval(timerInterval);
+    endLevel();
+    return;
+  }
+  const q = levelState.questions[levelState.questionIndex];
+  const area = document.getElementById('gameArea');
+
+  let questionHtml = `
+    <div class="boss-hp-bar"><div class="boss-hp-fill" id="bossHpFill" style="width:${levelState.bossHp}%"></div></div>
+    <div style="font-size:28px;margin:4px 0;">🐉</div>
+  `;
+
+  if (q.bossType === 'tone') {
+    questionHtml += `
+      <div class="game-question">${t('selectTone')} (${levelState.questionIndex+1}/${levelState.total})</div>
+      <div class="game-prompt">${q.data.char}</div>
+      <div class="game-options" id="bossOptions">
+        ${q.data.options.map((opt, i) => `<div class="game-option" onclick="checkBoss('tone',${i},${q.data.options.indexOf(q.data.pinyin)})">${opt}</div>`).join('')}
+      </div>
+    `;
+  } else if (q.bossType === 'culture') {
+    questionHtml += `
+      <div class="game-question" style="color:var(--gold);">${currentLang==='zh' ? q.data.q : q.data.qEn}</div>
+      <div class="game-options" id="bossOptions">
+        ${q.data.options.map((opt, i) => `<div class="game-option" onclick="checkBoss('culture',${i},${q.data.answer})">${opt}</div>`).join('')}
+      </div>
+    `;
+  } else if (q.bossType === 'grammar') {
+    levelState.answered = false;
+    levelState.grammarSlots = [];
+    levelState.grammarWords = shuffle([...q.data.words]);
+    questionHtml += `
+      <div class="game-question">${t('arrangeWords')}</div>
+      <div style="font-size:11px;color:var(--text-dim);">💡 ${q.data.hint}</div>
+      <div class="grammar-sentence" id="grammarSentence">
+        <span style="color:var(--text-dim);font-family:var(--font-pixel);font-size:8px;">${currentLang==='zh'?'點擊詞語':'Click words'}</span>
+      </div>
+      <div class="grammar-bank" id="grammarBank">
+        ${levelState.grammarWords.map((w, i) => `<div class="grammar-word" onclick="addToSentence(${i})" id="gw-${i}">${w}</div>`).join('')}
+      </div>
+      <button class="pixel-btn small green" onclick="checkBossGrammar()" style="margin-top:8px;">${t('checkAnswer')}</button>
+    `;
+  }
+
+  area.innerHTML = questionHtml;
+}
+
+function checkBoss(type, selected, correct) {
+  if (levelState.answered) return;
+  levelState.answered = true;
+  const opts = document.querySelectorAll('#bossOptions .game-option');
+  opts[correct].classList.add('correct');
+  if (selected === correct) {
+    handleCorrect();
+  } else {
+    opts[selected].classList.add('wrong');
+    handleWrong();
+  }
+  setTimeout(() => {
+    levelState.questionIndex++;
+    levelState.answered = false;
+    showBossQuestion();
+  }, 1000);
+}
+
+function checkBossGrammar() {
+  if (levelState.answered) return;
+  levelState.answered = true;
+  const q = levelState.questions[levelState.questionIndex];
+  const playerAnswer = levelState.grammarSlots.map(i => levelState.grammarWords[i]).join('');
+  if (playerAnswer === q.data.answer) {
+    handleCorrect();
+  } else {
+    handleWrong();
+  }
+  setTimeout(() => {
+    levelState.questionIndex++;
+    levelState.answered = false;
+    showBossQuestion();
+  }, 1200);
+}
+
+// ===== END LEVEL =====
+function endLevel() {
+  clearInterval(timerInterval);
+  const total = levelState.correct + levelState.wrong;
+  const accuracy = total > 0 ? Math.round((levelState.correct / total) * 100) : 0;
+  const timeBonus = Math.floor(levelState.timeLeft * 2);
+  const finalScore = levelState.score + timeBonus;
+
+  // Stars
+  let stars = 0;
+  if (accuracy >= 90) stars = 3;
+  else if (accuracy >= 70) stars = 2;
+  else if (accuracy >= 40) stars = 1;
+
+  // XP
+  const xpGained = Math.floor(finalScore * 0.3) + stars * 20;
+  state.xp += xpGained;
+  state.totalScore += finalScore;
+
+  // Level up check
+  let leveledUp = false;
+  while (state.xp >= state.xpToNext) {
+    state.xp -= state.xpToNext;
+    state.level++;
+    state.xpToNext = Math.floor(state.xpToNext * 1.4);
+    state.maxHp += 10;
+    state.hp = state.maxHp;
+    leveledUp = true;
+    if (state.level >= 5) checkAchievement('level5');
+  }
+
+  // Record completion
+  if (stars > 0 && !state.levelsCompleted.includes(levelState.levelId)) {
+    state.levelsCompleted.push(levelState.levelId);
+  }
+  const prevStars = state.levelStars[levelState.levelId] || 0;
+  if (stars > prevStars) state.levelStars[levelState.levelId] = stars;
+
+  // Achievements
+  checkAchievement('first_win');
+  if (stars >= 3) checkAchievement('perfect_score');
+  if (levelState.levelId === 1 && stars >= 3) checkAchievement('tone_master');
+  if (levelState.timeLeft > levelState.timeLimit * 0.5) checkAchievement('speed_demon');
+  if (levelState.isBoss && levelState.bossHp <= 0) checkAchievement('boss_slayer');
+  if (state.levelsCompleted.length >= LEVELS.length) checkAchievement('all_levels');
+  if (state.langUsed.zh && state.langUsed.en) checkAchievement('polyglot');
+
+  // Rating text
+  let rating = t('tryAgain');
+  if (stars >= 3) rating = t('perfect');
+  else if (stars >= 2) rating = t('great');
+  else if (stars >= 1) rating = t('good');
+
+  // Show completion screen
+  const starsDisplay = '⭐'.repeat(stars) + '☆'.repeat(3-stars);
+
+  const screen = document.getElementById('level-complete');
+  screen.innerHTML = `
+    <div class="complete-title">${levelState.isBoss && levelState.bossHp <= 0 ? t('bossDefeated') : t('levelComplete')}</div>
+    <div class="complete-stars">${starsDisplay}</div>
+    <div style="font-family:var(--font-pixel);font-size:14px;color:var(--gold);">${rating}</div>
+    ${leveledUp ? `<div style="font-family:var(--font-pixel);font-size:14px;color:var(--xp-purple);margin:8px;">${t('levelUp')} → LV.${state.level}</div>` : ''}
+    <div class="complete-stats">
+      ${t('score')}: ${finalScore}<br>
+      ${t('accuracy')}: ${accuracy}%<br>
+      ${t('combo')}: ${levelState.maxCombo}x<br>
+      ${t('timeBonus')}: +${timeBonus}
+    </div>
+    <div class="complete-xp">✨ ${t('xpGained')}: +${xpGained}</div>
+    <div class="complete-buttons">
+      ${state.levelsCompleted.includes(levelState.levelId) && levelState.levelId < LEVELS.length
+        ? `<button class="pixel-btn gold" onclick="startLevel(${levelState.levelId + 1})">${t('nextLevel')} →</button>` : ''}
+      <button class="pixel-btn blue" onclick="startLevel(${levelState.levelId})">${t('replayLevel')}</button>
+      <button class="pixel-btn" onclick="goScreen('world-map')">${t('backToMap')}</button>
+    </div>
+  `;
+  goScreen('level-complete');
+
+  // Effects
+  if (stars >= 2) {
+    setTimeout(() => spawnFireworks(window.innerWidth*0.3, window.innerHeight*0.3), 200);
+    setTimeout(() => spawnFireworks(window.innerWidth*0.7, window.innerHeight*0.4), 500);
+    setTimeout(() => spawnFireworks(window.innerWidth*0.5, window.innerHeight*0.25), 800);
+  }
+  if (leveledUp) sfx('levelup');
+  else if (stars >= 2) sfx('star');
+
+  saveGame();
+}
+
+function quitLevel() {
+  clearInterval(timerInterval);
+  sfx('click');
+  goScreen('world-map');
+}
+
+// ===== ACHIEVEMENTS =====
+function checkAchievement(id) {
+  if (state.achievements.includes(id)) return;
+  state.achievements.push(id);
+  const ach = ACHIEVEMENTS.find(a => a.id === id);
+  if (ach) {
+    showFeedback(`🏆 ${currentLang==='zh' ? ach.name : ach.nameEn}`, '#f6c177');
+    sfx('star');
+  }
+}
+
+function initAchievements() {
+  const grid = document.getElementById('achieveGrid');
+  grid.innerHTML = '';
+  ACHIEVEMENTS.forEach(a => {
+    const earned = state.achievements.includes(a.id);
+    const card = document.createElement('div');
+    card.className = 'achieve-card ' + (earned ? 'earned' : 'locked');
+    card.innerHTML = `
+      <div class="achieve-icon">${earned ? a.icon : '🔒'}</div>
+      <div class="achieve-info">
+        <div class="achieve-name">${currentLang==='zh' ? a.name : a.nameEn}</div>
+        <div class="achieve-desc">${currentLang==='zh' ? a.desc : a.descEn}</div>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+// ===== SETTINGS =====
+function initSettings() {
+  const panel = document.getElementById('settingsPanel');
+  panel.innerHTML = `
+    <div class="setting-row">
+      <span class="setting-label">${t('sound')}</span>
+      <button class="setting-toggle ${soundEnabled?'on':''}" onclick="toggleSound();initSettings();"></button>
+    </div>
+    <div class="setting-row">
+      <span class="setting-label">${t('language')}</span>
+      <button class="pixel-btn small" onclick="toggleLang();initSettings();">${currentLang==='zh'?'中文':'English'}</button>
+    </div>
+    <div class="setting-row">
+      <span class="setting-label">${t('resetData')}</span>
+      <button class="pixel-btn small" style="background:var(--hp-red);border-color:#a11d33;" onclick="resetData()">🗑️</button>
+    </div>
+  `;
+}
+
+function resetData() {
+  if (confirm(t('confirmReset'))) {
+    localStorage.removeItem('mandarinQuest_save');
+    state = {
+      screen:'title-screen', prevScreen:'title-screen', character:null, difficulty:'easy',
+      hp:100, maxHp:100, xp:0, level:1, xpToNext:100, score:0, totalScore:0,
+      levelsCompleted:[], levelStars:{}, achievements:[], currentLevel:null,
+      combo:0, maxCombo:0, langUsed:{zh:false,en:false}
+    };
+    goScreen('title-screen');
+  }
+}
+
+// ===== SAVE / LOAD =====
+function saveGame() {
+  const saveData = {
+    character: state.character,
+    difficulty: state.difficulty,
+    hp: state.hp, maxHp: state.maxHp,
+    xp: state.xp, level: state.level, xpToNext: state.xpToNext,
+    totalScore: state.totalScore,
+    levelsCompleted: state.levelsCompleted,
+    levelStars: state.levelStars,
+    achievements: state.achievements,
+    langUsed: state.langUsed,
+  };
+  try { localStorage.setItem('mandarinQuest_save', JSON.stringify(saveData)); } catch(e) {}
+}
+
+function loadAndContinue() {
+  try {
+    const data = JSON.parse(localStorage.getItem('mandarinQuest_save'));
+    if (data) {
+      Object.assign(state, data);
+      sfx('click');
+      goScreen('world-map');
+    }
+  } catch(e) { goScreen('char-select'); }
+}
+
+// ===== UTILITY =====
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i=a.length-1; i>0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+// ===== INIT =====
+initTitle();
+state.langUsed[currentLang] = true;
+
+// Resume audio context on first interaction
+document.addEventListener('click', () => {
+  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+}, { once: true });
+
+</script>
+</body>
+</html>
