@@ -405,10 +405,10 @@ html, body { width:100%; height:100%; overflow:hidden; background:var(--bg-dark)
   text-shadow: 1px 1px 0 rgba(0,0,0,0.5);
 }
 @keyframes bannerSlide {
-  0%   { opacity:0; transform:translateY(-100%); }
-  15%  { opacity:1; transform:translateY(0); }
-  75%  { opacity:1; transform:translateY(0); }
-  100% { opacity:0; transform:translateY(-100%); }
+  0%   { opacity:0; }
+  12%  { opacity:1; }
+  75%  { opacity:1; }
+  100% { opacity:0; }
 }
 
 /* ── D: Big taunt speech bubble ── */
@@ -995,7 +995,7 @@ const GRAMMAR_QUESTIONS = {
     { words:['雖然','很累','但是','他','還是','繼續','工作'], answer:'雖然很累但是他還是繼續工作', hint:'Although tired, he still continues working' },
     { words:['如果','明天','下雨','我們','就','不','去'], answer:'如果明天下雨我們就不去', hint:'If it rains tomorrow, we won\'t go' },
     { words:['他','比','我','跑','得','快'], answer:'他比我跑得快', hint:'He runs faster than me' },
-    { words:['這個','電影','我已經','看過','了'], answer:'我已經看過這個電影了', hint:'I\'ve already seen this movie' },
+    { words:['這個','電影','我','已經','看過','了'], answer:'這個電影我已經看過了', hint:'I\'ve already seen this movie' },
     { words:['老師','讓','學生','寫','作業'], answer:'老師讓學生寫作業', hint:'The teacher has students do homework' },
   ],
   hard: [
@@ -1273,8 +1273,9 @@ function startLevel(levelId) {
     rivalMaxCombo: 0,
     rivalTimers: [],
     rivalWasAhead: false,
-    rivalConsecutive: 0,  // ← NEW: track rival streak for taunt trigger
-    dangerActive: false,  // ← NEW: track if danger state is on
+    rivalConsecutive: 0,  // track rival streak for taunt trigger
+    dangerActive: false,  // track if danger state is on
+    rivalPending: false,  // BUG1 FIX: prevent rival timer stacking
   };
   levelState.timeLeft = levelState.timeLimit;
 
@@ -1536,6 +1537,10 @@ function showRivalStreakAlert(n) {
 
 function scheduleRivalAnswer() {
   if (!levelState.rival) return;
+  // BUG1 FIX: prevent rival timers from stacking on rapid player answers
+  if (levelState.rivalPending) return;
+  levelState.rivalPending = true;
+
   const r = levelState.rival;
   const delay = r.speedMin + Math.random() * (r.speedMax - r.speedMin);
 
@@ -1543,6 +1548,7 @@ function scheduleRivalAnswer() {
   startRivalCountdown(delay);
 
   const timerId = setTimeout(() => {
+    levelState.rivalPending = false; // BUG1 FIX: allow next scheduling
     if (levelState.timeLeft <= 0 || levelState.ended) return;
     const isCorrect = Math.random() < r.accuracy;
 
@@ -1561,10 +1567,10 @@ function scheduleRivalAnswer() {
       // D: Trigger big taunt on streak of 3
       if (levelState.rivalConsecutive === 3) {
         showRivalStreakAlert(3);
-        setTimeout(() => showBigRivalTaunt(r, 'streak'), 400);
+        setTimeout(() => { if (!levelState.ended) showBigRivalTaunt(r, 'streak'); }, 400);
       } else if (levelState.rivalConsecutive === 5) {
         showRivalStreakAlert(5);
-        setTimeout(() => showBigRivalTaunt(r, 'streak'), 400);
+        setTimeout(() => { if (!levelState.ended) showBigRivalTaunt(r, 'streak'); }, 400);
       } else if (Math.random() < 0.25) {
         // Occasional small popup taunt
         const taunt = currentLang==='zh' ? r.tauntCorrect[0] : r.tauntCorrect[1];
@@ -1575,11 +1581,7 @@ function scheduleRivalAnswer() {
       if (levelState.rivalScore > levelState.score && (levelState.rivalScore - levelState.score) > 80
           && !levelState._tauntedForLead) {
         levelState._tauntedForLead = true;
-        setTimeout(() => showBigRivalTaunt(r, 'lead'), 500);
-      }
-      // Reset lead taunt flag if player catches up
-      if (levelState.score >= levelState.rivalScore) {
-        levelState._tauntedForLead = false;
+        setTimeout(() => { if (!levelState.ended) showBigRivalTaunt(r, 'lead'); }, 500);
       }
 
     } else {
@@ -1591,6 +1593,12 @@ function scheduleRivalAnswer() {
         const taunt = currentLang==='zh' ? r.tauntWrong[0] : r.tauntWrong[1];
         setTimeout(() => showRivalPopup(`"${taunt}"`, '#6e6a86'), 350);
       }
+    }
+
+    // BUG4 FIX: reset lead-taunt flag unconditionally (not just inside isCorrect branch)
+    // so that if the player catches up while rival was wrong, the flag clears properly
+    if (levelState.score >= levelState.rivalScore) {
+      levelState._tauntedForLead = false;
     }
 
     // Reset thinking bar after answering
