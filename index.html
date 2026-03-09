@@ -27,18 +27,15 @@
 * { margin:0; padding:0; box-sizing:border-box; }
 html, body { width:100%; height:100%; overflow:hidden; background:var(--bg-dark); color:var(--text); font-family:var(--font-body); }
 
-/* ===== CANVAS OVERLAY ===== */
 #particle-canvas {
   position:fixed; top:0; left:0; width:100%; height:100%;
   pointer-events:none; z-index:9999;
 }
 
-/* ===== SCREEN SYSTEM ===== */
 .screen { display:none; position:absolute; top:0; left:0; width:100%; height:100%; overflow-y:auto; }
 .screen.active { display:flex; flex-direction:column; align-items:center; animation: screenIn 0.4s ease-out; }
 @keyframes screenIn { from { opacity:0; transform:translateY(20px);} to { opacity:1; transform:translateY(0);} }
 
-/* ===== PIXEL BUTTON ===== */
 .pixel-btn {
   font-family:var(--font-pixel); font-size:11px; padding:14px 28px;
   background:var(--primary); color:#fff; border:none; cursor:pointer;
@@ -55,7 +52,6 @@ html, body { width:100%; height:100%; overflow:hidden; background:var(--bg-dark)
 .pixel-btn.small { font-size:8px; padding:8px 16px; }
 .pixel-btn.disabled { opacity:0.4; pointer-events:none; }
 
-/* ===== TITLE SCREEN ===== */
 #title-screen {
   background: linear-gradient(180deg, #0f0e17 0%, #1a1a2e 40%, #0f3460 100%);
   justify-content:center; gap:20px; text-align:center; padding:20px;
@@ -75,7 +71,6 @@ html, body { width:100%; height:100%; overflow:hidden; background:var(--bg-dark)
 .title-buttons { display:flex; flex-direction:column; gap:12px; z-index:1; }
 .version-tag { font-family:var(--font-pixel); font-size:7px; color:var(--text-dim); z-index:1; margin-top:20px; }
 
-/* ===== CHARACTER SELECT ===== */
 #char-select { background:var(--bg-dark); justify-content:center; gap:20px; padding:20px; }
 .char-grid { display:flex; gap:20px; flex-wrap:wrap; justify-content:center; }
 .char-card {
@@ -97,7 +92,6 @@ html, body { width:100%; height:100%; overflow:hidden; background:var(--bg-dark)
 .stat-label { font-family:var(--font-pixel); font-size:6px; color:var(--text-dim); display:block; }
 .stat-value { font-family:var(--font-pixel); font-size:10px; color:var(--success); }
 
-/* ===== DIFFICULTY SELECT ===== */
 #diff-select { background:var(--bg-dark); justify-content:center; gap:16px; padding:20px; }
 .diff-grid { display:flex; gap:16px; flex-wrap:wrap; justify-content:center; }
 .diff-card {
@@ -110,7 +104,6 @@ html, body { width:100%; height:100%; overflow:hidden; background:var(--bg-dark)
 .diff-name { font-family:var(--font-pixel); font-size:11px; color:var(--gold); margin:8px 0; }
 .diff-desc { font-size:12px; color:var(--text-dim); line-height:1.5; }
 
-/* ===== WORLD MAP ===== */
 #world-map {
   background: linear-gradient(180deg, #0f0e17 0%, #16213e 50%, #1a1a2e 100%);
   justify-content:flex-start; padding:20px; gap:10px;
@@ -167,7 +160,6 @@ html, body { width:100%; height:100%; overflow:hidden; background:var(--bg-dark)
 .node-stars { font-size:10px; margin-top:2px; }
 .map-bottom-btns { display:flex; gap:12px; margin-top:10px; }
 
-/* ===== GAME PLAY SCREEN ===== */
 #game-screen {
   background:var(--bg-dark); justify-content:flex-start; padding:12px; gap:8px;
 }
@@ -183,7 +175,7 @@ html, body { width:100%; height:100%; overflow:hidden; background:var(--bg-dark)
   width:100%; max-width:700px; flex:1; display:flex; flex-direction:column;
   align-items:center; justify-content:center; gap:16px; padding:12px;
   background:var(--bg-panel); border:2px solid var(--border); position:relative;
-  overflow:hidden; min-height:300px;
+  overflow:hidden; min-height:300px; transition: border-color 0.3s, box-shadow 0.3s;
 }
 .game-question {
   font-family:var(--font-pixel); font-size:clamp(10px,2.5vw,16px);
@@ -202,7 +194,6 @@ html, body { width:100%; height:100%; overflow:hidden; background:var(--bg-dark)
 @keyframes correctFlash { 0%{background:rgba(156,207,216,0.6);} 100%{background:rgba(156,207,216,0.2);} }
 @keyframes shake { 0%,100%{transform:translateX(0);} 20%{transform:translateX(-8px);} 40%{transform:translateX(8px);} 60%{transform:translateX(-4px);} 80%{transform:translateX(4px);} }
 
-/* Memory cards */
 .memory-grid { display:grid; gap:8px; justify-content:center; }
 .memory-card {
   width:clamp(60px,15vw,85px); height:clamp(70px,18vw,100px);
@@ -219,7 +210,6 @@ html, body { width:100%; height:100%; overflow:hidden; background:var(--bg-dark)
 .memory-card.flipped .card-back { display:none; }
 .memory-card.flipped .card-front { display:block; }
 
-/* Grammar drag */
 .grammar-sentence { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; min-height:50px;
   padding:12px; border:2px dashed var(--border); background:rgba(0,0,0,0.2); max-width:600px; }
 .grammar-bank { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-top:12px; }
@@ -233,7 +223,6 @@ html, body { width:100%; height:100%; overflow:hidden; background:var(--bg-dark)
 .grammar-word.correct-pos { border-color:var(--success); }
 .grammar-word.wrong-pos { border-color:var(--hp-red); animation:shake 0.4s; }
 
-/* Combo & feedback */
 .combo-display {
   font-family:var(--font-pixel); font-size:16px; color:var(--gold);
   position:absolute; top:10px; right:10px;
@@ -250,7 +239,6 @@ html, body { width:100%; height:100%; overflow:hidden; background:var(--bg-dark)
   100% { opacity:0; transform:translate(-50%,-80%) scale(1); }
 }
 
-/* ===== LEVEL COMPLETE ===== */
 #level-complete { background:rgba(15,14,23,0.95); justify-content:center; gap:16px; padding:20px; text-align:center; z-index:100; }
 .complete-stars { font-size:40px; margin:8px 0; }
 .complete-title { font-family:var(--font-pixel); font-size:clamp(14px,3vw,22px); color:var(--gold); text-shadow:var(--pixel-shadow); }
@@ -258,7 +246,6 @@ html, body { width:100%; height:100%; overflow:hidden; background:var(--bg-dark)
 .complete-xp { font-family:var(--font-pixel); font-size:12px; color:var(--xp-purple); margin:8px 0; }
 .complete-buttons { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; }
 
-/* ===== ACHIEVEMENTS ===== */
 #achievements { background:var(--bg-dark); padding:20px; gap:12px; }
 .achieve-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px; width:100%; max-width:700px; }
 .achieve-card {
@@ -272,7 +259,6 @@ html, body { width:100%; height:100%; overflow:hidden; background:var(--bg-dark)
 .achieve-name { font-family:var(--font-pixel); font-size:8px; color:var(--gold); margin-bottom:4px; }
 .achieve-desc { font-size:11px; color:var(--text-dim); }
 
-/* ===== SETTINGS ===== */
 #settings { background:var(--bg-dark); justify-content:center; gap:16px; padding:20px; }
 .settings-panel {
   background:var(--bg-card); border:2px solid var(--border); padding:24px;
@@ -291,7 +277,6 @@ html, body { width:100%; height:100%; overflow:hidden; background:var(--bg-dark)
 }
 .setting-toggle.on::after { left:27px; }
 
-/* ===== RESPONSIVE ===== */
 @media (max-width:500px) {
   .char-card { width:140px; }
   .diff-card { width:160px; }
@@ -299,7 +284,6 @@ html, body { width:100%; height:100%; overflow:hidden; background:var(--bg-dark)
   .bar-bg { width:70px; }
 }
 
-/* ===== SCREEN SHAKE ===== */
 .screen-shake { animation:screenShake 0.3s ease-out; }
 @keyframes screenShake {
   0%,100%{transform:translate(0);}
@@ -310,7 +294,6 @@ html, body { width:100%; height:100%; overflow:hidden; background:var(--bg-dark)
   90%{transform:translate(-2px,3px);}
 }
 
-/* ===== PROGRESS ===== */
 .progress-container {
   width:100%; max-width:400px; height:16px; background:#111;
   border:2px solid var(--border); position:relative;
@@ -321,7 +304,6 @@ html, body { width:100%; height:100%; overflow:hidden; background:var(--bg-dark)
   font-family:var(--font-pixel); font-size:7px; color:#fff; text-shadow:1px 1px 0 #000;
 }
 
-/* ===== BOSS INTRO ===== */
 .boss-intro {
   position:absolute; top:0; left:0; width:100%; height:100%;
   background:rgba(0,0,0,0.9); display:flex; flex-direction:column;
@@ -335,7 +317,6 @@ html, body { width:100%; height:100%; overflow:hidden; background:var(--bg-dark)
 .boss-hp-bar { width:80%; max-width:400px; height:20px; background:#111; border:2px solid var(--primary); margin:8px 0; position:relative; }
 .boss-hp-fill { height:100%; background:var(--hp-red); transition:width 0.5s; }
 
-/* Tooltip */
 .tooltip { position:relative; }
 .tooltip-text {
   visibility:hidden; font-family:var(--font-pixel); font-size:7px;
@@ -345,7 +326,6 @@ html, body { width:100%; height:100%; overflow:hidden; background:var(--bg-dark)
 }
 .tooltip:hover .tooltip-text { visibility:visible; }
 
-/* Lang toggle */
 .lang-toggle {
   position:fixed; top:10px; right:10px; z-index:999;
   font-family:var(--font-pixel); font-size:8px; padding:6px 12px;
@@ -354,7 +334,6 @@ html, body { width:100%; height:100%; overflow:hidden; background:var(--bg-dark)
 }
 .lang-toggle:hover { border-color:var(--gold); }
 
-/* Sound toggle */
 .sound-toggle {
   position:fixed; top:10px; right:90px; z-index:999;
   font-size:18px; background:none; border:2px solid var(--border);
@@ -362,12 +341,14 @@ html, body { width:100%; height:100%; overflow:hidden; background:var(--bg-dark)
   background:var(--bg-card);
 }
 .sound-toggle:hover { border-color:var(--gold); }
-/* ===== OPPONENT / RIVAL SYSTEM ===== */
+
+/* ===== VS / RIVAL HUD ===== */
 .vs-hud {
   width:100%; max-width:700px; display:flex; align-items:center;
   justify-content:space-between; gap:4px; padding:6px 10px;
   background:rgba(0,0,0,0.6); border:2px solid var(--border);
   font-family:var(--font-pixel); font-size:7px; margin-bottom:4px;
+  position: relative;
 }
 .vs-player, .vs-rival { display:flex; align-items:center; gap:6px; flex:1; }
 .vs-rival { flex-direction:row-reverse; text-align:right; }
@@ -394,6 +375,88 @@ html, body { width:100%; height:100%; overflow:hidden; background:var(--bg-dark)
 .vs-bar-fill.left { left:0; background:var(--gold); }
 .vs-bar-fill.right { right:0; left:auto; background:var(--hp-red); }
 
+/* ── C: Rival thinking countdown bar ── */
+.rival-thinking-bar {
+  width:80px; height:3px; background:#1a1a2e; border:1px solid #393552;
+  overflow:hidden; margin-top:2px;
+}
+.rival-thinking-fill {
+  height:100%; background:var(--hp-red); width:0%;
+  box-shadow: 0 0 4px rgba(235,111,146,0.8);
+}
+
+/* ── B: Danger border when rival leads by 100+ ── */
+.game-area.rival-danger {
+  border-color: var(--hp-red) !important;
+  animation: dangerPulse 0.9s ease-in-out infinite !important;
+}
+@keyframes dangerPulse {
+  0%,100% { box-shadow: inset 0 0 0px rgba(235,111,146,0); border-color: var(--hp-red); }
+  50%     { box-shadow: inset 0 0 20px rgba(235,111,146,0.25), 0 0 15px rgba(235,111,146,0.4); }
+}
+
+/* Gap warning banner (slides in from top) */
+.danger-banner {
+  position:absolute; top:0; left:0; width:100%;
+  font-family:var(--font-pixel); font-size:10px; color:#fff;
+  background: linear-gradient(90deg, var(--hp-red), #a11d33);
+  padding:6px 0; text-align:center; z-index:25;
+  animation: bannerSlide 2s ease-out forwards;
+  text-shadow: 1px 1px 0 rgba(0,0,0,0.5);
+}
+@keyframes bannerSlide {
+  0%   { opacity:0; transform:translateY(-100%); }
+  15%  { opacity:1; transform:translateY(0); }
+  75%  { opacity:1; transform:translateY(0); }
+  100% { opacity:0; transform:translateY(-100%); }
+}
+
+/* ── D: Big taunt speech bubble ── */
+.rival-taunt-big {
+  position:fixed; bottom:130px; right:16px; z-index:600;
+  background:var(--bg-card); border:3px solid var(--hp-red);
+  padding:14px 16px; max-width:210px; min-width:150px;
+  animation: tauntSlideIn 3s ease-out forwards; pointer-events:none;
+}
+/* Speech bubble triangle pointing down-right */
+.rival-taunt-big::after {
+  content:''; position:absolute; bottom:-14px; right:18px;
+  border-left:10px solid transparent;
+  border-right:10px solid transparent;
+  border-top:14px solid var(--hp-red);
+}
+.rival-taunt-header {
+  font-family:var(--font-pixel); font-size:8px; color:var(--hp-red);
+  margin-bottom:8px; display:flex; align-items:center; gap:6px;
+}
+.rival-taunt-text {
+  font-family:var(--font-pixel); font-size:9px; color:var(--text);
+  line-height:1.6;
+}
+@keyframes tauntSlideIn {
+  0%   { opacity:0; transform:translateX(40px) scale(0.85); }
+  12%  { opacity:1; transform:translateX(0) scale(1.05); }
+  18%  { transform:translateX(0) scale(1); }
+  75%  { opacity:1; }
+  100% { opacity:0; transform:translateX(20px); }
+}
+
+/* Streak notification (rival on fire) */
+.rival-streak-alert {
+  position:absolute; top:8px; left:8px;
+  font-family:var(--font-pixel); font-size:9px; color:var(--hp-red);
+  background:rgba(0,0,0,0.8); border:2px solid var(--hp-red);
+  padding:5px 10px; z-index:25;
+  animation: streakPop 1.5s ease-out forwards;
+}
+@keyframes streakPop {
+  0%   { opacity:0; transform:scale(0.7); }
+  20%  { opacity:1; transform:scale(1.1); }
+  30%  { transform:scale(1); }
+  75%  { opacity:1; }
+  100% { opacity:0; }
+}
+
 .rival-action-popup {
   position:absolute; top:12px; left:12px;
   font-family:var(--font-pixel); font-size:10px; z-index:20;
@@ -407,7 +470,6 @@ html, body { width:100%; height:100%; overflow:hidden; background:var(--bg-dark)
   100% { opacity:0; transform:translateY(-10px); }
 }
 
-/* Opponent select cards */
 .rival-grid { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; margin:12px 0; }
 .rival-card {
   width:150px; background:var(--bg-card); border:3px solid var(--border); padding:12px;
@@ -425,7 +487,6 @@ html, body { width:100%; height:100%; overflow:hidden; background:var(--bg-dark)
 .rival-card-desc { font-size:10px; color:var(--text-dim); line-height:1.4; }
 .rival-card-rank { font-family:var(--font-pixel); font-size:7px; color:var(--xp-purple); margin-top:6px; }
 
-/* VS result screen */
 .vs-result {
   display:flex; align-items:center; justify-content:center; gap:16px;
   width:100%; max-width:500px; margin:8px 0;
@@ -469,7 +530,7 @@ html, body { width:100%; height:100%; overflow:hidden; background:var(--bg-dark)
     <button class="pixel-btn small" onclick="goScreen('achievements')" data-i18n="achievements">成就 ACHIEVEMENTS</button>
     <button class="pixel-btn small" onclick="goScreen('settings')" data-i18n="settings">設定 SETTINGS</button>
   </div>
-  <div class="version-tag">v1.0 — GitHub Pages Edition</div>
+  <div class="version-tag">v1.1 — Rival Pressure Update</div>
 </div>
 
 <!-- CHARACTER SELECT -->
@@ -530,11 +591,9 @@ html, body { width:100%; height:100%; overflow:hidden; background:var(--bg-dark)
 
 <script>
 // ============================================================
-//  MANDARIN QUEST — 華語英雄傳
-//  A single-file RPG Chinese learning game
+//  MANDARIN QUEST v1.1 — Rival Pressure Update
 // ============================================================
 
-// ===== I18N =====
 const LANG = {
   zh: {
     pressStart:'▶ 按下開始 ◀', newGame:'新遊戲', continue:'繼續遊戲', achievements:'成就',
@@ -560,6 +619,9 @@ const LANG = {
     chooseRival:'選擇你的對手', noRival:'不要對手（單人模式）',
     rivalWin:'你贏了！', rivalLose:'你輸了...', rivalDraw:'平手！',
     vsYou:'你', vsRival:'對手', vsResult:'對戰結果',
+    dangerWarning:'⚠️ 對手領先！快追上！',
+    rivalOnFire:'對手連續答對{n}題！',
+    thinking:'思考中...',
   },
   en: {
     pressStart:'▶ PRESS START ◀', newGame:'NEW GAME', continue:'CONTINUE', achievements:'ACHIEVEMENTS',
@@ -585,6 +647,9 @@ const LANG = {
     chooseRival:'CHOOSE YOUR RIVAL', noRival:'No Rival (Solo Mode)',
     rivalWin:'YOU WIN!', rivalLose:'YOU LOSE...', rivalDraw:'DRAW!',
     vsYou:'YOU', vsRival:'RIVAL', vsResult:'VS RESULT',
+    dangerWarning:'⚠️ RIVAL IS LEADING! Hurry!',
+    rivalOnFire:'Rival answered {n} in a row!',
+    thinking:'Thinking...',
   }
 };
 
@@ -662,53 +727,47 @@ function sfx(type) {
         osc.frequency.setValueAtTime(1319,now+0.12);
         gain.gain.setValueAtTime(0.2,now); gain.gain.exponentialRampToValueAtTime(0.01,now+0.3);
         osc.start(now); osc.stop(now+0.3); break;
-      // Tone indicators — pitch contour hints (not primary audio)
-      case 'tone1': // 一聲 high flat (55)
-        osc.type='triangle';
-        osc.frequency.setValueAtTime(400,now);
-        gain.gain.setValueAtTime(0.25,now);
-        gain.gain.setValueAtTime(0.25,now+0.5);
+      case 'danger':
+        osc.type='square'; osc.frequency.setValueAtTime(150,now);
+        osc.frequency.setValueAtTime(120,now+0.2);
+        gain.gain.setValueAtTime(0.2,now); gain.gain.exponentialRampToValueAtTime(0.01,now+0.4);
+        osc.start(now); osc.stop(now+0.4); break;
+      case 'tone1':
+        osc.type='triangle'; osc.frequency.setValueAtTime(400,now);
+        gain.gain.setValueAtTime(0.25,now); gain.gain.setValueAtTime(0.25,now+0.5);
         gain.gain.exponentialRampToValueAtTime(0.01,now+0.7);
         osc.start(now); osc.stop(now+0.7); break;
-      case 'tone2': // 二聲 rising (35)
-        osc.type='triangle';
-        osc.frequency.setValueAtTime(250,now);
+      case 'tone2':
+        osc.type='triangle'; osc.frequency.setValueAtTime(250,now);
         osc.frequency.linearRampToValueAtTime(420,now+0.6);
-        gain.gain.setValueAtTime(0.2,now);
-        gain.gain.linearRampToValueAtTime(0.3,now+0.4);
+        gain.gain.setValueAtTime(0.2,now); gain.gain.linearRampToValueAtTime(0.3,now+0.4);
         gain.gain.exponentialRampToValueAtTime(0.01,now+0.7);
         osc.start(now); osc.stop(now+0.7); break;
-      case 'tone3': // 三聲 dipping (214)
-        osc.type='triangle';
-        osc.frequency.setValueAtTime(280,now);
+      case 'tone3':
+        osc.type='triangle'; osc.frequency.setValueAtTime(280,now);
         osc.frequency.linearRampToValueAtTime(180,now+0.3);
         osc.frequency.linearRampToValueAtTime(380,now+0.7);
-        gain.gain.setValueAtTime(0.25,now);
-        gain.gain.exponentialRampToValueAtTime(0.01,now+0.85);
+        gain.gain.setValueAtTime(0.25,now); gain.gain.exponentialRampToValueAtTime(0.01,now+0.85);
         osc.start(now); osc.stop(now+0.85); break;
-      case 'tone4': // 四聲 falling (51)
-        osc.type='triangle';
-        osc.frequency.setValueAtTime(450,now);
+      case 'tone4':
+        osc.type='triangle'; osc.frequency.setValueAtTime(450,now);
         osc.frequency.linearRampToValueAtTime(180,now+0.45);
-        gain.gain.setValueAtTime(0.3,now);
-        gain.gain.exponentialRampToValueAtTime(0.01,now+0.55);
+        gain.gain.setValueAtTime(0.3,now); gain.gain.exponentialRampToValueAtTime(0.01,now+0.55);
         osc.start(now); osc.stop(now+0.55); break;
     }
   } catch(e) {}
 }
 
-// ===== SPEECH SYNTHESIS (TTS) =====
 function speakChinese(text) {
   if (!soundEnabled) return;
   try {
     if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel(); // stop any ongoing speech
+      window.speechSynthesis.cancel();
       const utter = new SpeechSynthesisUtterance(text);
-      utter.lang = 'zh-TW'; // prefer Taiwan Mandarin
-      utter.rate = 0.75;    // slow down for clarity
+      utter.lang = 'zh-TW';
+      utter.rate = 0.75;
       utter.pitch = 1.0;
       utter.volume = 1.0;
-      // Try to find a Chinese voice
       const voices = window.speechSynthesis.getVoices();
       const zhVoice = voices.find(v => v.lang.startsWith('zh-TW'))
                    || voices.find(v => v.lang.startsWith('zh-CN'))
@@ -719,7 +778,6 @@ function speakChinese(text) {
   } catch(e) {}
 }
 
-// Preload voices (some browsers need this)
 if ('speechSynthesis' in window) {
   window.speechSynthesis.getVoices();
   window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
@@ -827,7 +885,6 @@ const ACHIEVEMENTS = [
   { id:'comeback', icon:'🔄', name:'逆轉勝', nameEn:'Comeback King', desc:'落後時反超對手獲勝', descEn:'Win after trailing behind rival' },
 ];
 
-// ===== RIVAL / OPPONENT DATA =====
 const RIVALS = [
   {
     id:'xiaobai', emoji:'🐣', name:'小白', nameEn:'Xiao Bai',
@@ -836,6 +893,8 @@ const RIVALS = [
     accuracy:0.40, speedMin:3500, speedMax:6000,
     tauntCorrect:['嗯...我猜對了？','Lucky!'],
     tauntWrong:['好難啊...','This is hard...'],
+    tauntLead:['欸，我居然領先！','Oh wow, I\'m winning?'],
+    tauntStreak:['連對了！好開心！','Got a streak! Yay!'],
   },
   {
     id:'mingming', emoji:'🧑‍🎓', name:'明明', nameEn:'Ming Ming',
@@ -844,6 +903,8 @@ const RIVALS = [
     accuracy:0.65, speedMin:2000, speedMax:4500,
     tauntCorrect:['我有把握！','Not bad!'],
     tauntWrong:['差一點...','Almost...'],
+    tauntLead:['看來我今天狀態很好～','Feeling sharp today~'],
+    tauntStreak:['連續答對！勢如破竹！','On a roll! Keep it up!'],
   },
   {
     id:'linglong', emoji:'👩‍🏫', name:'玲瓏', nameEn:'Ling Long',
@@ -852,6 +913,8 @@ const RIVALS = [
     accuracy:0.82, speedMin:1200, speedMax:3000,
     tauntCorrect:['太簡單了～','Easy～'],
     tauntWrong:['哼，失誤了','Hmph, slipped.'],
+    tauntLead:['差距越來越大了哦','The gap is growing~'],
+    tauntStreak:['完全沒有懸念。','No contest here.'],
   },
   {
     id:'longwang', emoji:'🐲', name:'龍王AI', nameEn:'Dragon AI',
@@ -860,6 +923,8 @@ const RIVALS = [
     accuracy:0.93, speedMin:600, speedMax:1800,
     tauntCorrect:['毫無懸念。','As expected.'],
     tauntWrong:['...計算錯誤','...miscalculation'],
+    tauntLead:['你的失敗已被記錄在案。','Your defeat is logged.'],
+    tauntStreak:['效率最優化。','Optimal efficiency.'],
   },
 ];
 
@@ -930,7 +995,7 @@ const GRAMMAR_QUESTIONS = {
     { words:['雖然','很累','但是','他','還是','繼續','工作'], answer:'雖然很累但是他還是繼續工作', hint:'Although tired, he still continues working' },
     { words:['如果','明天','下雨','我們','就','不','去'], answer:'如果明天下雨我們就不去', hint:'If it rains tomorrow, we won\'t go' },
     { words:['他','比','我','跑','得','快'], answer:'他比我跑得快', hint:'He runs faster than me' },
-    { words:['這個','電影','我','已經','看過','了'], answer:'這個電影我已經看過了', hint:'I\'ve already seen this movie' },
+    { words:['這個','電影','我已經','看過','了'], answer:'我已經看過這個電影了', hint:'I\'ve already seen this movie' },
     { words:['老師','讓','學生','寫','作業'], answer:'老師讓學生寫作業', hint:'The teacher has students do homework' },
   ],
   hard: [
@@ -984,7 +1049,7 @@ let state = {
   combo: 0,
   maxCombo: 0,
   langUsed: { zh:false, en:false },
-  rival: null, // selected rival id or null for solo
+  rival: null,
 };
 
 // ===== SCREEN MANAGEMENT =====
@@ -996,7 +1061,6 @@ function goScreen(id) {
   const target = document.getElementById(id);
   if (target) {
     target.classList.add('active');
-    // Init screen-specific content
     switch(id) {
       case 'title-screen': initTitle(); break;
       case 'char-select': initCharSelect(); break;
@@ -1016,9 +1080,7 @@ function goBack() {
   }
 }
 
-// ===== TITLE SCREEN =====
 function initTitle() {
-  // Stars
   const sc = document.getElementById('stars-container');
   if (sc.children.length === 0) {
     for (let i=0; i<50; i++) {
@@ -1028,14 +1090,11 @@ function initTitle() {
       sc.appendChild(star);
     }
   }
-  // Show continue button if save exists
   const save = localStorage.getItem('mandarinQuest_save');
   document.getElementById('continueBtn').style.display = save ? 'inline-block' : 'none';
-  // Track language used
   state.langUsed[currentLang] = true;
 }
 
-// ===== CHARACTER SELECT =====
 function initCharSelect() {
   const grid = document.getElementById('charGrid');
   grid.innerHTML = '';
@@ -1061,7 +1120,6 @@ function confirmCharacter() {
   goScreen('diff-select');
 }
 
-// ===== DIFFICULTY SELECT =====
 function initDiffSelect() {
   const grid = document.getElementById('diffGrid');
   grid.innerHTML = '';
@@ -1076,10 +1134,8 @@ function initDiffSelect() {
     `;
     grid.appendChild(card);
   });
-  // Rival selection
   const rivalGrid = document.getElementById('rivalGrid');
   rivalGrid.innerHTML = '';
-  // Solo mode option
   const soloCard = document.createElement('div');
   soloCard.className = 'rival-card' + (state.rival === null ? ' selected' : '');
   soloCard.onclick = () => { state.rival = null; initDiffSelect(); sfx('click'); };
@@ -1089,7 +1145,6 @@ function initDiffSelect() {
     <div class="rival-card-desc">${currentLang==='zh'?'獨自冒險':'Adventure alone'}</div>
   `;
   rivalGrid.appendChild(soloCard);
-  // Rival NPCs
   RIVALS.forEach(r => {
     const card = document.createElement('div');
     card.className = 'rival-card' + (state.rival === r.id ? ' selected' : '');
@@ -1118,7 +1173,6 @@ function confirmDifficulty() {
   goScreen('world-map');
 }
 
-// ===== WORLD MAP =====
 function initWorldMap() {
   renderMapHud();
   renderMap();
@@ -1163,7 +1217,6 @@ function renderMap() {
     const stars = state.levelStars[lvl.id] || 0;
     const stateClass = completed ? 'completed' : (unlocked ? 'unlocked' : 'locked');
     const bossClass = lvl.isBoss ? ' boss' : '';
-
     if (i > 0) {
       html += `<div class="map-connector ${unlocked ? 'unlocked' : ''}"></div>`;
     }
@@ -1212,7 +1265,6 @@ function startLevel(levelId) {
     ended: false,
     isBoss: !!lvl.isBoss,
     bossHp: 100,
-    // Rival state
     rival: state.rival ? RIVALS.find(r => r.id === state.rival) : null,
     rivalScore: 0,
     rivalCorrect: 0,
@@ -1221,6 +1273,8 @@ function startLevel(levelId) {
     rivalMaxCombo: 0,
     rivalTimers: [],
     rivalWasAhead: false,
+    rivalConsecutive: 0,  // ← NEW: track rival streak for taunt trigger
+    dangerActive: false,  // ← NEW: track if danger state is on
   };
   levelState.timeLeft = levelState.timeLimit;
 
@@ -1263,14 +1317,13 @@ function renderGameHud() {
   const charObj = CHARACTERS.find(c => c.id === state.character) || CHARACTERS[0];
   const rival = levelState.rival;
 
-  let hudHtml = `
+  document.getElementById('gameHud').innerHTML = `
     <div class="game-level-name">${lvl.emoji} ${t(lvl.nameKey)}</div>
-    <div class="game-timer" id="timerDisplay" ${levelState.timeLeft <= 10 ? 'style="color:#ff4444"' : ''}>⏱ ${levelState.timeLeft}s</div>
+    <div class="game-timer" id="timerDisplay">⏱ ${levelState.timeLeft}s</div>
     <div class="game-score-display" id="scoreDisplay">🪙 ${levelState.score}</div>
   `;
-  document.getElementById('gameHud').innerHTML = hudHtml;
 
-  // VS HUD bar (between game-hud-top and game-area)
+  // VS HUD
   let vsEl = document.getElementById('vsHud');
   if (rival) {
     if (!vsEl) {
@@ -1283,6 +1336,7 @@ function renderGameHud() {
     const totalMax = Math.max(levelState.score + levelState.rivalScore, 1);
     const playerPct = Math.round((levelState.score / totalMax) * 100);
     const rivalPct = Math.round((levelState.rivalScore / totalMax) * 100);
+
     vsEl.innerHTML = `
       <div class="vs-player">
         <div class="vs-avatar">${charObj.emoji}</div>
@@ -1305,9 +1359,12 @@ function renderGameHud() {
           <div class="vs-name rival-name">${currentLang==='zh'?rival.name:rival.nameEn}</div>
           <div class="vs-score">🪙 ${levelState.rivalScore}</div>
           <div class="vs-combo-text">${levelState.rivalCombo > 1 ? '🔥x'+levelState.rivalCombo : ''}</div>
+          <div class="rival-thinking-bar"><div class="rival-thinking-fill" id="rivalThinkingFill"></div></div>
         </div>
       </div>
     `;
+    // Re-check danger border state after rebuild
+    checkRivalGap();
   } else if (vsEl) {
     vsEl.remove();
   }
@@ -1318,8 +1375,10 @@ function startTimer() {
   timerInterval = setInterval(() => {
     levelState.timeLeft--;
     const td = document.getElementById('timerDisplay');
-    if (td) td.textContent = `⏱ ${levelState.timeLeft}s`;
-    if (levelState.timeLeft <= 10 && td) td.style.color = '#ff4444';
+    if (td) {
+      td.textContent = `⏱ ${levelState.timeLeft}s`;
+      td.style.color = levelState.timeLeft <= 10 ? '#ff4444' : '';
+    }
     if (levelState.timeLeft <= 0) {
       clearInterval(timerInterval);
       endLevel();
@@ -1337,7 +1396,7 @@ function addScore(base) {
   const charObj = CHARACTERS.find(c => c.id === state.character);
   let pts = Math.floor(base * (diffObj?.scoreMult || 1));
   if (charObj?.bonus === 'score') pts = Math.floor(pts * 1.1);
-  pts += levelState.combo * 5; // combo bonus
+  pts += levelState.combo * 5;
   levelState.score += pts;
   updateScoreDisplay();
   return pts;
@@ -1373,11 +1432,7 @@ function handleWrong() {
   setTimeout(() => document.getElementById('gameArea')?.classList.remove('screen-shake'), 300);
   showFeedback(t('wrong'), '#eb6f92');
   const charObj = CHARACTERS.find(c => c.id === state.character);
-  if (charObj?.bonus !== 'hp') {
-    state.hp = Math.max(0, state.hp - 5);
-  } else {
-    state.hp = Math.max(0, state.hp - 2); // fairy takes less damage
-  }
+  state.hp = Math.max(0, state.hp - (charObj?.bonus === 'hp' ? 2 : 5));
   renderGameHud();
   scheduleRivalAnswer();
 }
@@ -1399,38 +1454,152 @@ function updateBossHp() {
   if (fill) fill.style.width = levelState.bossHp + '%';
 }
 
-// ===== RIVAL AI SYSTEM =====
+// ===== RIVAL AI SYSTEM — v1.1 =====
+
+// ── C: Start countdown bar showing rival is "thinking" ──
+function startRivalCountdown(delay) {
+  const fill = document.getElementById('rivalThinkingFill');
+  if (!fill) return;
+  // Reset instantly, then animate to full over `delay` ms
+  fill.style.transition = 'none';
+  fill.style.width = '0%';
+  fill.offsetHeight; // force reflow
+  fill.style.transition = `width ${delay}ms linear`;
+  fill.style.width = '100%';
+}
+
+// ── B: Check if rival has a dangerous lead; apply/remove red border ──
+function checkRivalGap() {
+  if (!levelState.rival) return;
+  const area = document.getElementById('gameArea');
+  if (!area) return;
+  const gap = levelState.rivalScore - levelState.score;
+  const wasActive = levelState.dangerActive;
+
+  if (gap > 100) {
+    area.classList.add('rival-danger');
+    // Only show banner + sfx when first crossing threshold
+    if (!wasActive) {
+      levelState.dangerActive = true;
+      sfx('danger');
+      const banner = document.createElement('div');
+      banner.className = 'danger-banner';
+      banner.textContent = t('dangerWarning');
+      area.appendChild(banner);
+      setTimeout(() => banner.remove(), 2100);
+    }
+  } else {
+    area.classList.remove('rival-danger');
+    levelState.dangerActive = false;
+  }
+}
+
+// ── D: Big prominent taunt speech bubble ──
+function showBigRivalTaunt(rival, tauntType) {
+  // Remove any existing taunt
+  document.querySelector('.rival-taunt-big')?.remove();
+
+  let tauntText;
+  switch(tauntType) {
+    case 'lead':
+      tauntText = currentLang === 'zh' ? rival.tauntLead[0] : rival.tauntLead[1];
+      break;
+    case 'streak':
+      tauntText = currentLang === 'zh' ? rival.tauntStreak[0] : rival.tauntStreak[1];
+      break;
+    default:
+      tauntText = currentLang === 'zh' ? rival.tauntCorrect[0] : rival.tauntCorrect[1];
+  }
+  const rivalName = currentLang === 'zh' ? rival.name : rival.nameEn;
+
+  const el = document.createElement('div');
+  el.className = 'rival-taunt-big';
+  el.innerHTML = `
+    <div class="rival-taunt-header">${rival.emoji} <span>${rivalName}</span></div>
+    <div class="rival-taunt-text">"${tauntText}"</div>
+  `;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 3100);
+}
+
+// ── Rival streak alert (inside game area) ──
+function showRivalStreakAlert(n) {
+  const area = document.getElementById('gameArea');
+  if (!area) return;
+  document.querySelector('.rival-streak-alert')?.remove();
+  const el = document.createElement('div');
+  el.className = 'rival-streak-alert';
+  el.textContent = t('rivalOnFire').replace('{n}', n);
+  area.appendChild(el);
+  setTimeout(() => el.remove(), 1600);
+}
+
 function scheduleRivalAnswer() {
   if (!levelState.rival) return;
   const r = levelState.rival;
   const delay = r.speedMin + Math.random() * (r.speedMax - r.speedMin);
+
+  // C: Start countdown bar immediately
+  startRivalCountdown(delay);
+
   const timerId = setTimeout(() => {
-    if (levelState.timeLeft <= 0 || levelState.ended) return; // game over
+    if (levelState.timeLeft <= 0 || levelState.ended) return;
     const isCorrect = Math.random() < r.accuracy;
+
     if (isCorrect) {
       levelState.rivalCorrect++;
       levelState.rivalCombo++;
+      levelState.rivalConsecutive++;
       if (levelState.rivalCombo > levelState.rivalMaxCombo) levelState.rivalMaxCombo = levelState.rivalCombo;
       const pts = 100 + levelState.rivalCombo * 5;
       levelState.rivalScore += pts;
       showRivalPopup(`${r.emoji} +${pts}`, '#eb6f92');
+
       // Track if rival was ever ahead
       if (levelState.rivalScore > levelState.score) levelState.rivalWasAhead = true;
-      // Rival taunt (occasionally)
-      if (Math.random() < 0.3) {
+
+      // D: Trigger big taunt on streak of 3
+      if (levelState.rivalConsecutive === 3) {
+        showRivalStreakAlert(3);
+        setTimeout(() => showBigRivalTaunt(r, 'streak'), 400);
+      } else if (levelState.rivalConsecutive === 5) {
+        showRivalStreakAlert(5);
+        setTimeout(() => showBigRivalTaunt(r, 'streak'), 400);
+      } else if (Math.random() < 0.25) {
+        // Occasional small popup taunt
         const taunt = currentLang==='zh' ? r.tauntCorrect[0] : r.tauntCorrect[1];
-        setTimeout(() => showRivalPopup(`"${taunt}"`, '#e0def4'), 400);
+        setTimeout(() => showRivalPopup(`"${taunt}"`, '#e0def4'), 350);
       }
+
+      // D: Taunt when rival takes lead
+      if (levelState.rivalScore > levelState.score && (levelState.rivalScore - levelState.score) > 80
+          && !levelState._tauntedForLead) {
+        levelState._tauntedForLead = true;
+        setTimeout(() => showBigRivalTaunt(r, 'lead'), 500);
+      }
+      // Reset lead taunt flag if player catches up
+      if (levelState.score >= levelState.rivalScore) {
+        levelState._tauntedForLead = false;
+      }
+
     } else {
       levelState.rivalWrong++;
       levelState.rivalCombo = 0;
+      levelState.rivalConsecutive = 0;
       showRivalPopup(`${r.emoji} ✗`, '#6e6a86');
-      if (Math.random() < 0.2) {
+      if (Math.random() < 0.25) {
         const taunt = currentLang==='zh' ? r.tauntWrong[0] : r.tauntWrong[1];
-        setTimeout(() => showRivalPopup(`"${taunt}"`, '#6e6a86'), 400);
+        setTimeout(() => showRivalPopup(`"${taunt}"`, '#6e6a86'), 350);
       }
     }
+
+    // Reset thinking bar after answering
+    const fill = document.getElementById('rivalThinkingFill');
+    if (fill) { fill.style.transition = 'width 0.15s ease'; fill.style.width = '0%'; }
+
     renderGameHud();
+    // B: Check gap after updating rival score
+    checkRivalGap();
   }, delay);
   levelState.rivalTimers.push(timerId);
 }
@@ -1478,7 +1647,7 @@ function showToneQuestion() {
       ${q.options.map((opt, i) => `<div class="game-option" onclick="checkTone(${i}, ${q.options.indexOf(q.pinyin)})">${opt}</div>`).join('')}
     </div>
   `;
-  // Auto-speak the character when question appears
+  if (levelState.dangerActive) document.getElementById('gameArea').classList.add('rival-danger');
   setTimeout(() => { if (!levelState.ended) speakChinese(q.char); }, 300);
 }
 
@@ -1487,12 +1656,8 @@ function checkTone(selected, correct) {
   levelState.answered = true;
   const opts = document.querySelectorAll('#toneOptions .game-option');
   opts[correct].classList.add('correct');
-  if (selected === correct) {
-    handleCorrect();
-  } else {
-    opts[selected].classList.add('wrong');
-    handleWrong();
-  }
+  if (selected === correct) { handleCorrect(); }
+  else { opts[selected].classList.add('wrong'); handleWrong(); }
   setTimeout(() => { if (levelState.ended) return; levelState.questionIndex++; showToneQuestion(); }, 1000);
 }
 
@@ -1514,11 +1679,10 @@ function setupMemoryLevel(diff) {
 }
 
 function renderMemoryGrid() {
-  const cols = levelState.memoryCards.length <= 8 ? 4 : (levelState.memoryCards.length <= 12 ? 4 : 4);
   const area = document.getElementById('gameArea');
   area.innerHTML = `
     <div class="game-question">${t('matchPairs')} (${levelState.matched.length}/${levelState.total})</div>
-    <div class="memory-grid" style="grid-template-columns:repeat(${cols},1fr);" id="memGrid">
+    <div class="memory-grid" style="grid-template-columns:repeat(4,1fr);" id="memGrid">
       ${levelState.memoryCards.map((card, i) => {
         const isFlipped = levelState.flipped.includes(i) || levelState.matched.includes(card.pairId);
         const isMatched = levelState.matched.includes(card.pairId);
@@ -1529,6 +1693,7 @@ function renderMemoryGrid() {
       }).join('')}
     </div>
   `;
+  if (levelState.dangerActive) document.getElementById('gameArea').classList.add('rival-danger');
 }
 
 function flipCard(index) {
@@ -1536,16 +1701,13 @@ function flipCard(index) {
   if (levelState.matched.includes(card.pairId)) return;
   if (levelState.flipped.includes(index)) return;
   if (levelState.flipped.length >= 2) return;
-
   sfx('click');
   levelState.flipped.push(index);
   renderMemoryGrid();
-
   if (levelState.flipped.length === 2) {
     const c1 = levelState.memoryCards[levelState.flipped[0]];
     const c2 = levelState.memoryCards[levelState.flipped[1]];
     if (c1.pairId === c2.pairId && c1.type !== c2.type) {
-      // Match!
       levelState.matched.push(c1.pairId);
       handleCorrect();
       setTimeout(() => {
@@ -1584,7 +1746,7 @@ function showGrammarQuestion() {
   const area = document.getElementById('gameArea');
   area.innerHTML = `
     <div class="game-question">${t('arrangeWords')} (${levelState.questionIndex+1}/${levelState.total})</div>
-    <div style="font-size:12px;color:var(--text-dim);margin-bottom:8px;">💡 ${q.hint}</div>
+    <div style="font-size:16px;color:var(--text);margin-bottom:10px;text-align:center;line-height:1.5;">💡 ${q.hint}</div>
     <div class="grammar-sentence" id="grammarSentence">
       <span style="color:var(--text-dim);font-family:var(--font-pixel);font-size:8px;">${currentLang==='zh'?'點擊詞語排列句子':'Click words to build sentence'}</span>
     </div>
@@ -1596,6 +1758,7 @@ function showGrammarQuestion() {
       <button class="pixel-btn small" onclick="resetGrammar()">${currentLang==='zh'?'重排':'Reset'}</button>
     </div>
   `;
+  if (levelState.dangerActive) document.getElementById('gameArea').classList.add('rival-danger');
 }
 
 function addToSentence(wordIndex) {
@@ -1615,14 +1778,11 @@ function renderGrammarState() {
   const sentence = document.getElementById('grammarSentence');
   const bank = document.getElementById('grammarBank');
   if (!sentence || !bank) return;
-
   sentence.innerHTML = levelState.grammarSlots.length === 0
     ? `<span style="color:var(--text-dim);font-family:var(--font-pixel);font-size:8px;">${currentLang==='zh'?'點擊詞語排列句子':'Click words to build sentence'}</span>`
     : levelState.grammarSlots.map((wi, si) =>
         `<div class="grammar-word in-sentence" onclick="removeFromSentence(${si})">${levelState.grammarWords[wi]}</div>`
       ).join('');
-
-  // Update bank
   document.querySelectorAll('#grammarBank .grammar-word').forEach((el, i) => {
     el.style.opacity = levelState.grammarSlots.includes(i) ? '0.3' : '1';
     el.style.pointerEvents = levelState.grammarSlots.includes(i) ? 'none' : 'auto';
@@ -1636,14 +1796,12 @@ function resetGrammar() {
 
 function checkGrammar() {
   if (levelState.answered) return;
-  if (levelState.grammarSlots.length === 0) return; // prevent empty submit
+  if (levelState.grammarSlots.length === 0) return;
   const q = levelState.questions[levelState.questionIndex];
   const playerAnswer = levelState.grammarSlots.map(i => levelState.grammarWords[i]).join('');
   levelState.answered = true;
-
   if (playerAnswer === q.answer) {
     handleCorrect();
-    // Highlight green
     document.querySelectorAll('#grammarSentence .grammar-word').forEach(el => el.classList.add('correct-pos'));
   } else {
     handleWrong();
@@ -1665,7 +1823,6 @@ function showCultureQuestion() {
   if (levelState.questionIndex >= levelState.questions.length) { clearInterval(timerInterval); endLevel(); return; }
   const q = levelState.questions[levelState.questionIndex];
   levelState.answered = false;
-
   const area = document.getElementById('gameArea');
   area.innerHTML = `
     <div class="game-question">${t('answerQuestion')} (${levelState.questionIndex+1}/${levelState.total})</div>
@@ -1676,6 +1833,7 @@ function showCultureQuestion() {
       ${q.options.map((opt, i) => `<div class="game-option" onclick="checkCulture(${i}, ${q.answer})">${opt}</div>`).join('')}
     </div>
   `;
+  if (levelState.dangerActive) document.getElementById('gameArea').classList.add('rival-danger');
 }
 
 function checkCulture(selected, correct) {
@@ -1683,28 +1841,21 @@ function checkCulture(selected, correct) {
   levelState.answered = true;
   const opts = document.querySelectorAll('#cultureOptions .game-option');
   opts[correct].classList.add('correct');
-  if (selected === correct) {
-    handleCorrect();
-  } else {
-    opts[selected].classList.add('wrong');
-    handleWrong();
-  }
+  if (selected === correct) { handleCorrect(); }
+  else { opts[selected].classList.add('wrong'); handleWrong(); }
   setTimeout(() => { if (levelState.ended) return; levelState.questionIndex++; showCultureQuestion(); }, 1000);
 }
 
 // ===== BOSS LEVEL =====
 function setupBossLevel(diff) {
-  // Mix questions from all types
   const tones = shuffle([...(TONE_QUESTIONS[diff] || TONE_QUESTIONS.easy)]).slice(0, 3);
   const cultures = shuffle([...(CULTURE_QUESTIONS[diff] || CULTURE_QUESTIONS.easy)]).slice(0, 3);
   const grammars = shuffle([...(GRAMMAR_QUESTIONS[diff] || GRAMMAR_QUESTIONS.easy)]).slice(0, 2);
-
   let mixed = [];
   tones.forEach(q => mixed.push({ bossType:'tone', data:q }));
   cultures.forEach(q => mixed.push({ bossType:'culture', data:q }));
   grammars.forEach(q => mixed.push({ bossType:'grammar', data:q }));
   mixed = shuffle(mixed);
-
   levelState.questions = mixed;
   levelState.total = mixed.length;
   levelState.questionIndex = 0;
@@ -1714,18 +1865,14 @@ function setupBossLevel(diff) {
 
 function showBossQuestion() {
   if (levelState.questionIndex >= levelState.questions.length || levelState.bossHp <= 0) {
-    clearInterval(timerInterval);
-    endLevel();
-    return;
+    clearInterval(timerInterval); endLevel(); return;
   }
   const q = levelState.questions[levelState.questionIndex];
   const area = document.getElementById('gameArea');
-
   let questionHtml = `
     <div class="boss-hp-bar"><div class="boss-hp-fill" id="bossHpFill" style="width:${levelState.bossHp}%"></div></div>
     <div style="font-size:28px;margin:4px 0;">🐉</div>
   `;
-
   if (q.bossType === 'tone') {
     questionHtml += `
       <div class="game-question">${t('selectTone')} (${levelState.questionIndex+1}/${levelState.total})</div>
@@ -1750,7 +1897,7 @@ function showBossQuestion() {
     levelState.grammarWords = shuffle([...q.data.words]);
     questionHtml += `
       <div class="game-question">${t('arrangeWords')}</div>
-      <div style="font-size:11px;color:var(--text-dim);">💡 ${q.data.hint}</div>
+      <div style="font-size:16px;color:var(--text);text-align:center;margin-bottom:8px;">💡 ${q.data.hint}</div>
       <div class="grammar-sentence" id="grammarSentence">
         <span style="color:var(--text-dim);font-family:var(--font-pixel);font-size:8px;">${currentLang==='zh'?'點擊詞語':'Click words'}</span>
       </div>
@@ -1763,12 +1910,9 @@ function showBossQuestion() {
       </div>
     `;
   }
-
   area.innerHTML = questionHtml;
-  // Auto-speak for tone questions in boss mode
-  if (q.bossType === 'tone') {
-    setTimeout(() => { if (!levelState.ended) speakChinese(q.data.char); }, 300);
-  }
+  if (levelState.dangerActive) area.classList.add('rival-danger');
+  if (q.bossType === 'tone') setTimeout(() => { if (!levelState.ended) speakChinese(q.data.char); }, 300);
 }
 
 function checkBoss(type, selected, correct) {
@@ -1776,12 +1920,8 @@ function checkBoss(type, selected, correct) {
   levelState.answered = true;
   const opts = document.querySelectorAll('#bossOptions .game-option');
   opts[correct].classList.add('correct');
-  if (selected === correct) {
-    handleCorrect();
-  } else {
-    opts[selected].classList.add('wrong');
-    handleWrong();
-  }
+  if (selected === correct) { handleCorrect(); }
+  else { opts[selected].classList.add('wrong'); handleWrong(); }
   setTimeout(() => {
     if (levelState.ended) return;
     levelState.questionIndex++;
@@ -1792,15 +1932,12 @@ function checkBoss(type, selected, correct) {
 
 function checkBossGrammar() {
   if (levelState.answered) return;
-  if (levelState.grammarSlots.length === 0) return; // prevent empty submit
+  if (levelState.grammarSlots.length === 0) return;
   levelState.answered = true;
   const q = levelState.questions[levelState.questionIndex];
   const playerAnswer = levelState.grammarSlots.map(i => levelState.grammarWords[i]).join('');
-  if (playerAnswer === q.data.answer) {
-    handleCorrect();
-  } else {
-    handleWrong();
-  }
+  if (playerAnswer === q.data.answer) { handleCorrect(); }
+  else { handleWrong(); }
   setTimeout(() => {
     if (levelState.ended) return;
     levelState.questionIndex++;
@@ -1811,11 +1948,11 @@ function checkBossGrammar() {
 
 // ===== END LEVEL =====
 function endLevel() {
-  if (levelState.ended) return; // prevent double-call
+  if (levelState.ended) return;
   levelState.ended = true;
   clearInterval(timerInterval);
   clearRivalTimers();
-  // Remove VS HUD
+  document.querySelector('.rival-taunt-big')?.remove();
   const vsEl = document.getElementById('vsHud');
   if (vsEl) vsEl.remove();
 
@@ -1824,31 +1961,26 @@ function endLevel() {
   const timeBonus = Math.floor(levelState.timeLeft * 2);
   const finalScore = levelState.score + timeBonus;
 
-  // Stars
   let stars = 0;
   if (accuracy >= 90) stars = 3;
   else if (accuracy >= 70) stars = 2;
   else if (accuracy >= 40) stars = 1;
 
-  // XP
   let xpGained = Math.floor(finalScore * 0.3) + stars * 20;
 
-  // Rival comparison
   const rival = levelState.rival;
-  let vsResult = ''; // 'win', 'lose', 'draw'
+  let vsResult = '';
   let rivalFinalScore = levelState.rivalScore;
   if (rival) {
-    // Rival gets a small time bonus too
     rivalFinalScore += Math.floor(levelState.timeLeft * (0.5 + Math.random()));
     if (finalScore > rivalFinalScore) {
       vsResult = 'win';
-      xpGained = Math.floor(xpGained * 1.3); // bonus XP for winning
+      xpGained = Math.floor(xpGained * 1.3);
     } else if (finalScore < rivalFinalScore) {
       vsResult = 'lose';
     } else {
       vsResult = 'draw';
     }
-    // Rival achievements
     if (vsResult === 'win' && finalScore >= rivalFinalScore * 2) checkAchievement('rival_crusher');
     if (vsResult === 'win' && levelState.rivalWasAhead) checkAchievement('comeback');
   }
@@ -1856,7 +1988,6 @@ function endLevel() {
   state.xp += xpGained;
   state.totalScore += finalScore;
 
-  // Level up check
   let leveledUp = false;
   while (state.xp >= state.xpToNext) {
     state.xp -= state.xpToNext;
@@ -1868,14 +1999,12 @@ function endLevel() {
     if (state.level >= 5) checkAchievement('level5');
   }
 
-  // Record completion
   if (stars > 0 && !state.levelsCompleted.includes(levelState.levelId)) {
     state.levelsCompleted.push(levelState.levelId);
   }
   const prevStars = state.levelStars[levelState.levelId] || 0;
   if (stars > prevStars) state.levelStars[levelState.levelId] = stars;
 
-  // Achievements
   if (stars > 0) checkAchievement('first_win');
   if (stars >= 3) checkAchievement('perfect_score');
   if (levelState.levelId === 1 && stars >= 3) checkAchievement('tone_master');
@@ -1884,7 +2013,6 @@ function endLevel() {
   if (state.levelsCompleted.length >= LEVELS.length) checkAchievement('all_levels');
   if (state.langUsed.zh && state.langUsed.en) checkAchievement('polyglot');
 
-  // Rating text
   let rating = t('tryAgain');
   if (stars >= 3) rating = t('perfect');
   else if (stars >= 2) rating = t('great');
@@ -1893,14 +2021,12 @@ function endLevel() {
   const starsDisplay = '⭐'.repeat(stars) + '☆'.repeat(3-stars);
   const charObj = CHARACTERS.find(c => c.id === state.character) || CHARACTERS[0];
 
-  // Build VS result HTML
   let vsHtml = '';
   if (rival) {
     const rivalTotal = levelState.rivalCorrect + levelState.rivalWrong;
     const rivalAcc = rivalTotal > 0 ? Math.round((levelState.rivalCorrect / rivalTotal) * 100) : 0;
     const resultText = vsResult === 'win' ? t('rivalWin') : (vsResult === 'lose' ? t('rivalLose') : t('rivalDraw'));
     const badgeClass = vsResult === 'win' ? 'win' : (vsResult === 'lose' ? 'lose' : 'draw');
-
     vsHtml = `
       <div style="font-family:var(--font-pixel);font-size:12px;color:var(--primary);margin:8px 0;">⚔️ ${t('vsResult')}</div>
       <div class="vs-result">
@@ -1909,8 +2035,7 @@ function endLevel() {
           <div class="vs-result-name" style="color:var(--gold);">${t(charObj.nameKey)}</div>
           <div class="vs-result-score" style="color:var(--gold);">${finalScore}</div>
           <div class="vs-result-detail">
-            ${t('accuracy')}: ${accuracy}%<br>
-            ${t('combo')}: ${levelState.maxCombo}x
+            ${t('accuracy')}: ${accuracy}%<br>${t('combo')}: ${levelState.maxCombo}x
           </div>
         </div>
         <div class="vs-divider">VS</div>
@@ -1919,8 +2044,7 @@ function endLevel() {
           <div class="vs-result-name" style="color:var(--hp-red);">${currentLang==='zh'?rival.name:rival.nameEn}</div>
           <div class="vs-result-score" style="color:var(--hp-red);">${rivalFinalScore}</div>
           <div class="vs-result-detail">
-            ${t('accuracy')}: ${rivalAcc}%<br>
-            ${t('combo')}: ${levelState.rivalMaxCombo}x
+            ${t('accuracy')}: ${rivalAcc}%<br>${t('combo')}: ${levelState.rivalMaxCombo}x
           </div>
         </div>
       </div>
@@ -1951,7 +2075,6 @@ function endLevel() {
   `;
   goScreen('level-complete');
 
-  // Effects
   if (rival && vsResult === 'win') {
     setTimeout(() => spawnFireworks(window.innerWidth*0.3, window.innerHeight*0.3), 200);
     setTimeout(() => spawnFireworks(window.innerWidth*0.7, window.innerHeight*0.4), 500);
@@ -1971,7 +2094,7 @@ function endLevel() {
 function quitLevel() {
   clearInterval(timerInterval);
   clearRivalTimers();
-  // Remove VS HUD
+  document.querySelector('.rival-taunt-big')?.remove();
   const vsEl = document.getElementById('vsHud');
   if (vsEl) vsEl.remove();
   sfx('click');
@@ -2007,7 +2130,6 @@ function initAchievements() {
   });
 }
 
-// ===== SETTINGS =====
 function initSettings() {
   const panel = document.getElementById('settingsPanel');
   panel.innerHTML = `
@@ -2033,26 +2155,20 @@ function resetData() {
       screen:'title-screen', prevScreen:'title-screen', character:null, difficulty:'easy',
       hp:100, maxHp:100, xp:0, level:1, xpToNext:100, score:0, totalScore:0,
       levelsCompleted:[], levelStars:{}, achievements:[], currentLevel:null,
-      combo:0, maxCombo:0, langUsed:{zh:false,en:false},
-      rival:null
+      combo:0, maxCombo:0, langUsed:{zh:false,en:false}, rival:null
     };
     goScreen('title-screen');
   }
 }
 
-// ===== SAVE / LOAD =====
 function saveGame() {
   const saveData = {
-    character: state.character,
-    difficulty: state.difficulty,
+    character: state.character, difficulty: state.difficulty,
     hp: state.hp, maxHp: state.maxHp,
     xp: state.xp, level: state.level, xpToNext: state.xpToNext,
     totalScore: state.totalScore,
-    levelsCompleted: state.levelsCompleted,
-    levelStars: state.levelStars,
-    achievements: state.achievements,
-    langUsed: state.langUsed,
-    rival: state.rival,
+    levelsCompleted: state.levelsCompleted, levelStars: state.levelStars,
+    achievements: state.achievements, langUsed: state.langUsed, rival: state.rival,
   };
   try { localStorage.setItem('mandarinQuest_save', JSON.stringify(saveData)); } catch(e) {}
 }
@@ -2060,15 +2176,10 @@ function saveGame() {
 function loadAndContinue() {
   try {
     const data = JSON.parse(localStorage.getItem('mandarinQuest_save'));
-    if (data) {
-      Object.assign(state, data);
-      sfx('click');
-      goScreen('world-map');
-    }
+    if (data) { Object.assign(state, data); sfx('click'); goScreen('world-map'); }
   } catch(e) { goScreen('char-select'); }
 }
 
-// ===== UTILITY =====
 function shuffle(arr) {
   const a = [...arr];
   for (let i=a.length-1; i>0; i--) {
@@ -2081,12 +2192,9 @@ function shuffle(arr) {
 // ===== INIT =====
 initTitle();
 state.langUsed[currentLang] = true;
-
-// Resume audio context on user interaction (needed for mobile browsers)
 document.addEventListener('click', () => {
   if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
 });
-
 </script>
 </body>
 </html>
